@@ -18,7 +18,7 @@ config_file.close()
 client = BTS(config_bts["user"], config_bts["password"],
              config_bts["host"], config_bts["port"])
 
-print(client.get_precision("CNY"))
-print(client.get_precision("BTS"))
-print(client.get_precision("BTS"))
-print(client.get_precision(0))
+print(client.get_asset_precision("CNY"))
+print(client.get_asset_precision("BTS"))
+print(client.get_asset_precision("BTS"))
+print(client.get_asset_precision(0))

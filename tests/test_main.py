@@ -41,17 +41,10 @@ class TestMain(object):
         assert not self.client.is_peg_asset("BTS")
         assert not self.client.is_peg_asset("BTSBOTS")
 
-    def test_get_precision(self):
-        assert self.client.get_precision("CNY") == 10**4
-        assert self.client.get_precision("BTS") == 10**5
-        assert self.client.get_precision("BTSBOTS") == 10**2
-
-    def test_order_book(self):
-        result = self.client.request("blockchain_market_order_book",
-                                     ["CNY", "BTS"]).json()["result"]
-        pprint("======= test_order_book =========", self.logfile)
-        pprint(result, self.logfile)
-        assert len(result) > 0
+    def test_asset_precision(self):
+        assert self.client.get_asset_precision("CNY") == 10**4
+        assert self.client.get_asset_precision("BTS") == 10**5
+        assert self.client.get_asset_precision("BTSBOTS") == 10**2
 
     def test_feed_price(self):
         feed_price_cny = self.client.get_feed_price("CNY")
@@ -64,6 +57,12 @@ class TestMain(object):
         balance = self.client.get_balance()
         pprint("======= test_get_balance =========", self.logfile)
         pprint(balance, self.logfile)
+
+    def test_order_book(self):
+        order_book = self.client.get_order_book("CNY", "BTS")
+        pprint("======= test_order_book =========", self.logfile)
+        pprint(order_book, self.logfile)
+        assert len(order_book) > 0
     #def test_publish_feeds(self):
     #def test_transfer(self):
     #def test_market_batch_update(self):

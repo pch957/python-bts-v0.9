@@ -61,7 +61,7 @@ class BTS():
                 self.asset_info[result["symbol"]] = result
         return self.asset_info[asset]
 
-    def get_precision(self, asset):
+    def get_asset_precision(self, asset):
         return self.get_asset_info(asset)["precision"]
 
     def get_asset_id(self, asset):
@@ -82,7 +82,7 @@ class BTS():
 
     def transfer(self, trx):
         # v0.9 only support string
-        precision = str(int(self.get_precision(trx[1])))
+        precision = str(int(self.get_asset_precision(trx[1])))
         format_str = "%." + "%d" % (len(precision) - 1) + "f"
         trx[0] = format_str % trx[0]
         response = self.request("wallet_transfer", trx)
@@ -92,7 +92,7 @@ class BTS():
         # v0.9 only support str
         for o in new_orders:
             asset = o[1][2]
-            precision = str(int(self.get_precision(asset)))
+            precision = str(int(self.get_asset_precision(asset)))
             format_str = "%." + "%d" % (len(precision) - 1) + "f"
             o[1][1] = format_str % o[1][1]
 
@@ -129,7 +129,7 @@ class BTS():
         asset_array = response.json()["result"][0][1]
         for item in asset_array:
             _asset = self.get_asset_symbol(item[0])
-            balance[_asset] = float(item[1]) / self.get_precision(_asset)
+            balance[_asset] = float(item[1]) / self.get_asset_precision(_asset)
 
         if asset == "ALL":
             return balance
@@ -137,3 +137,69 @@ class BTS():
             return balance[asset]
         else:
             return None
+
+    def get_order_book1(self, quote, base):
+        quote_precision = self.get_asset_precision(quote)
+        base_precision = self.get_asset_precision(base)
+
+        order_book = {"bid": [], "ask": [], "cover": []}
+        order_book_json = self.request(
+            "blockchain_market_order_book", [quote, base]).json()["result"]
+        for order in order_book_json[0]:
+            _price = float(order["market_index"]["order_price"]["ratio"]) \
+                * base_precision / quote_precision
+            balance = order["state"]["balance"] / quote_precision
+            _volume = float(balance) / _price
+            order_book["bid"].append({"price": _price, "volume": _volume})
+        for order in order_book_json[1]:
+            _price = float(order["market_index"]["order_price"]["ratio"]) \
+                * base_precision / quote_precision
+            if order["type"] == "ask_order":
+                _volume = float(order["state"]["balance"]) / base_precision
+                order_book["ask"].append({"price": _price, "volume": _volume})
+            # elif order["type"] == "cover_order":
+            #  order_info["balance"] = \
+            #    order["state"]["balance"] / quote_precision
+            #  order_info["volume"] = order_info["balance"] / price
+            #  order_cover.insert(0,order_info)
+        return order_book
+
+    def get_order_book2(self, quote, base):
+        quote_precision = self.get_asset_precision(quote)
+        base_precision = self.get_asset_precision(base)
+        if not self.is_peg_asset(quote) or base != "BTS":
+            return None
+
+        order_book_short = []
+        volume_at_feed_price = 0.0
+        feed_price = self.get_feed_price(quote)
+        order_short = self.request(
+            "blockchain_market_list_shorts", [quote]).json()["result"]
+        for order in order_short:
+            volume = float(order["state"]["balance"]) / base_precision / 2
+            if "limit_price" not in order["state"]:
+                volume_at_feed_price += volume
+            else:
+                price_limit = order["state"]["limit_price"]
+                if float(price_limit["ratio"]) * base_precision \
+                        / quote_precision >= feed_price:
+                    volume_at_feed_price += volume
+                else:
+                    _price = float(price_limit["ratio"])\
+                        * base_precision / quote_precision
+                    _volume = volume * feed_price / _price
+                    order_book_short.append(
+                        {"price": _price, "volume": _volume})
+        if volume_at_feed_price != 0:
+            _volume = volume_at_feed_price
+            _price = feed_price
+            order_book_short.append({"price": _price, "volume": _volume})
+        return order_book_short
+
+    def get_order_book(self, quote, base):
+        order_book = self.get_order_book1(quote, base)
+        order_book_short = self.get_order_book2(quote, base)
+        order_book["bid"].extend(order_book_short)
+        order_book["bid"] = sorted(
+            order_book["bid"], key=lambda item: item["price"], reverse=True)
+        return order_book
