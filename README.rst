@@ -35,6 +35,7 @@ Instructions
         paver test_all
 
    You should see output similar to this::
+
        $ paver test_all
        ---> pavement.test_all
        No style errors
