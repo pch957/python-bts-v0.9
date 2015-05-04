@@ -51,16 +51,17 @@ Instructions
         |  _/ _ \\__ \__ \ _|| |) |
         |_|/_/ \_\___/___/___|___/
 
-#. Run the tests::
+   The substitution performed is rather naive, so some style errors may be reported if the description or name cause lines to be too long. Correct these manually before moving to the next step. If any unit tests fail to pass, please report an issue.
+
+#. build and install::
 
         paver build
         sudo paver install
-   The substitution performed is rather naive, so some style errors may be reported if the description or name cause lines to be too long. Correct these manually before moving to the next step. If any unit tests fail to pass, please report an issue.
 
 Supported Python Versions
 =========================
 
-Python Project Template supports the following versions out of the box:
+supports the following versions out of the box:
 
 * CPython 2.6, 2.7, 3.3
 * PyPy 1.9
