@@ -19,11 +19,11 @@ Instructions
 
 #. Install the project's development and runtime requirements::
 
-        pip install -r requirements-dev.txt
+        sudo pip install -r requirements-dev.txt
 
 #. Install ``argparse`` package when developing for Python 2.6::
 
-        pip install argparse
+        sudo pip install argparse
 
 #. copy config.json.sample to config.json, and change the parameter::
 
