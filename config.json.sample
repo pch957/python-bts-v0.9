@@ -1,0 +1,9 @@
+{
+  "bts_client": {
+    "host": "localhost",
+    "port": "9988",
+    "user": "alt",
+    "password": "alt"
+  }
+}
+
