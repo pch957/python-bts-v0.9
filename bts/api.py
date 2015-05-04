@@ -142,7 +142,7 @@ class BTS():
         quote_precision = self.get_asset_precision(quote)
         base_precision = self.get_asset_precision(base)
 
-        order_book = {"bid": [], "ask": [], "cover": []}
+        order_book = {"bids": [], "asks": [], "covers": []}
         order_book_json = self.request(
             "blockchain_market_order_book", [quote, base]).json()["result"]
         for order in order_book_json[0]:
@@ -150,13 +150,13 @@ class BTS():
                 * base_precision / quote_precision
             balance = order["state"]["balance"] / quote_precision
             _volume = float(balance) / _price
-            order_book["bid"].append({"price": _price, "volume": _volume})
+            order_book["bids"].append({"price": _price, "volume": _volume})
         for order in order_book_json[1]:
             _price = float(order["market_index"]["order_price"]["ratio"]) \
                 * base_precision / quote_precision
             if order["type"] == "ask_order":
                 _volume = float(order["state"]["balance"]) / base_precision
-                order_book["ask"].append({"price": _price, "volume": _volume})
+                order_book["asks"].append({"price": _price, "volume": _volume})
             # elif order["type"] == "cover_order":
             #  order_info["balance"] = \
             #    order["state"]["balance"] / quote_precision
@@ -199,7 +199,7 @@ class BTS():
     def get_order_book(self, quote, base):
         order_book = self.get_order_book1(quote, base)
         order_book_short = self.get_order_book2(quote, base)
-        order_book["bid"].extend(order_book_short)
-        order_book["bid"] = sorted(
-            order_book["bid"], key=lambda item: item["price"], reverse=True)
+        order_book["bids"].extend(order_book_short)
+        order_book["bids"] = sorted(
+            order_book["bids"], key=lambda item: item["price"], reverse=True)
         return order_book

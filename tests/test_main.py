@@ -9,6 +9,7 @@ import pytest
 parametrize = pytest.mark.parametrize
 
 from bts.api import BTS
+from bts.exchanges import Exchanges
 import json
 from pprint import pprint
 
@@ -66,3 +67,35 @@ class TestMain(object):
     #def test_publish_feeds(self):
     #def test_transfer(self):
     #def test_market_batch_update(self):
+
+    def test_exchanges_yahoo(self):
+        exchanges = Exchanges()
+        asset_list_all = ["KRW", "BTC", "SILVER", "GOLD", "TRY",
+                          "SGD", "HKD", "RUB", "SEK", "NZD", "CNY",
+                          "MXN", "CAD", "CHF", "AUD", "GBP", "JPY",
+                          "EUR", "USD", "BDR.AAPL"]
+        rate_cny = exchanges.fetch_from_yahoo(asset_list_all)
+        pprint("======= test_exchanges_yahoo =========", self.logfile)
+        pprint(rate_cny, self.logfile)
+        assert rate_cny["USD"] > 0
+
+    def test_exchanges_yunbi(self):
+        exchanges = Exchanges()
+        order_book = exchanges.fetch_from_yunbi()
+        pprint("======= test_exchanges_yunbi =========", self.logfile)
+        pprint(order_book, self.logfile)
+        assert len(order_book["bids"]) > 0
+
+    def test_exchanges_btc38(self):
+        exchanges = Exchanges()
+        order_book = exchanges.fetch_from_btc38()
+        pprint("======= test_exchanges_btc38 =========", self.logfile)
+        pprint(order_book, self.logfile)
+        assert len(order_book["bids"]) > 0
+
+    def test_exchanges_bter(self):
+        exchanges = Exchanges()
+        order_book = exchanges.fetch_from_bter()
+        pprint("======= test_exchanges_bter =========", self.logfile)
+        pprint(order_book, self.logfile)
+        assert len(order_book["bids"]) > 0
