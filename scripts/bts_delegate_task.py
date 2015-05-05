@@ -1,5 +1,7 @@
-# -*- coding: utf-8 -*-
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+from __future__ import print_function
 
 from bts.bts_price_after_match import BTSPriceAfterMatch
 from bts.api import BTS
@@ -187,9 +189,9 @@ class DelegateTask(object):
         self.display_price(median_price, current_feed_price)
 
     def withdraw_pay(self):
-        pay_balance = self.config_withdraw_pay["pay_balance"]
         for pay_list in self.config_withdraw_pay["pay_list"]:
             for delegate_account in pay_list["delegate_account"]:
+                pay_balance = pay_list["pay_balance"]
                 response = self.client.request("blockchain_get_account",
                                                [delegate_account])
                 account_info = response.json()["result"]

@@ -37,14 +37,15 @@
         "withdraw_pay": {
             "common": "call every run_timer*base_timer, set it to 0,you can disable this task ",
             "run_timer": 0,
-            "pay_balance": 5000,
             "pay_list": [
                 {
                     "delegate_account": ["delegate.baozi", "delegate-baozi"],
+                    "pay_balance": 3000,
                     "pay_account": [["baozi", 1.00]]
                 },
                 {
                     "delegate_account": ["www.bts-hk"],
+                    "pay_balance": 30000,
                     "pay_account": [["baozi", 0.03], ["bts-hk", 0.97]]
                 }
             ]
