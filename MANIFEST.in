@@ -8,6 +8,7 @@ include LICENSE
 graft docs
 prune docs/build
 graft tests
+graft config
 
 # Exclude any compile Python files (most likely grafted by tests/ directory).
 global-exclude *.pyc
