@@ -102,7 +102,7 @@ class TestMain(object):
         assert len(order_book["bids"]) > 0
 
     def test_bts_price_after_match(self):
-        bts_price = BTSPriceAfterMatch()
+        bts_price = BTSPriceAfterMatch(self.client)
         bts_price.get_rate_from_yahoo()
 
         # get all order book
@@ -114,7 +114,7 @@ class TestMain(object):
                 _order[1] *= 0.5
 
         # calculate real price
-        volume, real_price = bts_price.get_real_price(spread=0.01)
+        volume, volume2, real_price = bts_price.get_real_price(spread=0.01)
         pprint("======= test_bts_price_after_match =========", self.logfile)
         pprint([volume, real_price], self.logfile)
         assert volume > 0

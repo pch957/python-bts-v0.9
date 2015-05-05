@@ -2,21 +2,18 @@
 #!/usr/bin/python
 
 from bts.exchanges import Exchanges
-from bts.api import BTS
-import json
 import time
+#from pprint import pprint
 
 
 class BTSPriceAfterMatch(object):
 
-    def __init__(self):
-        config_file = open("config.json")
-        config = json.load(config_file)
-        config_bts = config["bts_client"]
-        config_file.close()
-        self.client = BTS(config_bts["user"], config_bts["password"],
-                          config_bts["host"], config_bts["port"])
-        self.exchanges = Exchanges()
+    def __init__(self, client, exchanges=None):
+        self.client = client
+        if exchanges:
+            self.exchanges = exchanges
+        else:
+            self.exchanges = Exchanges()
         self.order_book = {}
         self.timeout = 300  # order book can't use after 300 seconds
         self.timestamp_rate_cny = 0
@@ -146,7 +143,9 @@ class BTSPriceAfterMatch(object):
         while True:
             bid_volume, ask_volume, median_price = self.get_match_result(
                 order_bids, order_asks, price_list)
-            match_result.append([min(bid_volume, ask_volume), median_price])
+            #### we need to find a price, which can match the max volume
+            match_result.append([min(bid_volume, ask_volume),
+                                 -(bid_volume+ask_volume), median_price])
             if len(price_list) <= 1:
                 break
             if(bid_volume <= ask_volume):
@@ -155,4 +154,5 @@ class BTSPriceAfterMatch(object):
                 price_list = price_list[int(len(price_list) / 2):]
 
         match_result = sorted(match_result, reverse=True)
+        #pprint(match_result)
         return match_result[0]
