@@ -199,11 +199,12 @@ class DelegateTask(object):
                     self.client.get_asset_precision("BTS"))
                 if balance > pay_balance + 10:
                     for pay_account, percent in pay_list["pay_account"]:
-                        print(delegate_account, pay_account,
-                              pay_balance*percent)
-                        #self.client.request("wallet_delegate_withdraw_pay",
-                        #                    [delegate_account, pay_account,
-                        #                     pay_balance*percent])
+                        self.logger.info("withdraw pay %s %s %s"
+                                         % (delegate_account, pay_account,
+                                            pay_balance*percent))
+                        self.client.request("wallet_delegate_withdraw_pay",
+                                            [delegate_account, pay_account,
+                                             pay_balance*percent])
 
     def task_withdraw_pay(self):
         self.withdraw_pay()
