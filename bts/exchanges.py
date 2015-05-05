@@ -12,61 +12,63 @@ class Exchanges():
     def __init__(self):
         self.header = {'content-type': 'application/json',
                        'User-Agent': 'Mozilla/5.0 Gecko/20100101 Firefox/22.0'}
-
         self.log = logging.getLogger('bts')
-        self.order_book = {}
-        for exchange in ["btc38", "yunbi", "bter"]:
-            self.order_book[exchange] = {"asks": [], "bids": []}
-        self.true_price_in_cny_per_bts = 0
-        self.true_price_in_cny_per_bts_median = 0
-        self.rate_cny = {}
+        self.order_types = ["bids", "asks"]
 
     # ------------------------------------------------------------------------
     # Fetch data
     # ------------------------------------------------------------------------
     #
-    def fetch_from_btc38(self):
+    def fetch_from_btc38(self, quote="cny", base="bts"):
         try:
-            exchange = "btc38"
             url = "http://api.btc38.com/v1/depth.php"
-            params = {'c': 'bts', 'mk_type': 'cny'}
+            params = {'c': base, 'mk_type': quote}
             response = requests.get(
                 url=url, params=params, headers=self.header, timeout=3)
             result = json.loads(vars(response)['_content'].decode("utf-8-sig"))
-            self.order_book[exchange]["asks"] = sorted(result["asks"])
-            self.order_book[exchange]["bids"] = sorted(result["bids"],
-                                                       reverse=True)
-            return self.order_book[exchange]
+            for order_type in self.order_types:
+                for order in result[order_type]:
+                    order[0] = float(order[0])
+                    order[1] = float(order[1])
+            order_book_ask = sorted(result["asks"])
+            order_book_bid = sorted(result["bids"], reverse=True)
+            return {"bids": order_book_bid, "asks": order_book_ask}
         except:
             self.log.error("Error fetching results from btc38!")
             return
 
-    def fetch_from_bter(self):
+    def fetch_from_bter(self, quote="cny", base="bts"):
         try:
-            exchange = "bter"
-            url = "http://data.bter.com/api/1/depth/bts_cny"
+            url = "http://data.bter.com/api/1/depth/%s_%s" % (base, quote)
             result = requests.get(
                 url=url, headers=self.header, timeout=3).json()
-            self.order_book[exchange]["asks"] = sorted(result["asks"])
+            for order_type in self.order_types:
+                for order in result[order_type]:
+                    order[0] = float(order[0])
+                    order[1] = float(order[1])
+            order_book_ask = sorted(result["asks"])
+            order_book_bid = sorted(result["bids"], reverse=True)
             for bid_order in result["bids"]:
-                self.order_book[exchange]["bids"].append(
+                order_book_bid.append(
                     [float(bid_order[0]), float(bid_order[1])])
-            return self.order_book[exchange]
+            return {"bids": order_book_bid, "asks": order_book_ask}
         except:
             self.log.error("Error fetching results from bter!")
             return
 
-    def fetch_from_yunbi(self):
+    def fetch_from_yunbi(self, quote="cny", base="bts"):
         try:
-            exchange = "yunbi"
             url = "https://yunbi.com/api/v2/depth.json"
-            params = {'market': 'btscny'}
+            params = {'market': base+quote}
             result = requests.get(
                 url=url, params=params, headers=self.header, timeout=3).json()
-            self.order_book[exchange]["asks"] = sorted(result["asks"])
-            self.order_book[exchange]["bids"] = sorted(result["bids"],
-                                                       reverse=True)
-            return self.order_book[exchange]
+            for order_type in self.order_types:
+                for order in result[order_type]:
+                    order[0] = float(order[0])
+                    order[1] = float(order[1])
+            order_book_ask = sorted(result["asks"])
+            order_book_bid = sorted(result["bids"], reverse=True)
+            return {"bids": order_book_bid, "asks": order_book_ask}
         except:
             self.log.error("Error fetching results from yunbi!")
             return
@@ -110,12 +112,3 @@ class Exchanges():
         except:
             self.log.error("Error fetching results from yahoo!")
             return
-
-    def fetch_from_exchange(self, exchange):
-        self.order_book[exchange] = {"asks": [], "bids": []}
-        if exchange == "btc38":
-            self.fetch_from_btc38()
-        elif exchange == "yunbi":
-            self.fetch_from_yunbi()
-        elif exchange == "bter":
-            self.fetch_from_bter()
