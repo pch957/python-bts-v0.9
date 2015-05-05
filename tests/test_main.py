@@ -10,6 +10,7 @@ parametrize = pytest.mark.parametrize
 
 from bts.api import BTS
 from bts.exchanges import Exchanges
+from bts.bts_price_after_match import BTSPriceAfterMatch
 import json
 from pprint import pprint
 
@@ -99,3 +100,21 @@ class TestMain(object):
         pprint("======= test_exchanges_bter =========", self.logfile)
         pprint(order_book, self.logfile)
         assert len(order_book["bids"]) > 0
+
+    def test_bts_price_after_match(self):
+        bts_price = BTSPriceAfterMatch()
+        bts_price.get_rate_from_yahoo()
+
+        # get all order book
+        bts_price.get_order_book_all()
+
+        # can add weight here
+        for order_type in bts_price.order_types:
+            for _order in bts_price.order_book["wallet_usd"][order_type]:
+                _order[1] *= 0.5
+
+        # calculate real price
+        volume, real_price = bts_price.get_real_price(spread=0.01)
+        pprint("======= test_bts_price_after_match =========", self.logfile)
+        pprint([volume, real_price], self.logfile)
+        assert volume > 0
