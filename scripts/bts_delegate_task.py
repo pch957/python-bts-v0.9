@@ -219,7 +219,9 @@ class DelegateTask(object):
             time.sleep(int(self.config["base_timer"]))
 
 if __name__ == '__main__':
-    config_file = "config.json"
+    config_file = os.getenv("HOME")+"/.python-bts.json"
+    if not os.path.isfile(config_file):
+        config_file = "/etc/python-bts.json"
     delegate_task = DelegateTask(config_file)
     try:
         delegate_task.excute()

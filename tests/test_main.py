@@ -13,11 +13,15 @@ from bts.exchanges import Exchanges
 from bts.bts_price_after_match import BTSPriceAfterMatch
 import json
 from pprint import pprint
+import os
 
 
 class TestMain(object):
     logfile = open("/tmp/test-bts-api.log", 'a')
-    config_file = open("config.json")
+    config_file_name = os.getenv("HOME")+"/.python-bts.json"
+    if not os.path.isfile(config_file_name):
+        config_file_name = "/etc/python-bts.json"
+    config_file = open(config_file_name)
     config = json.load(config_file)
     config_bts = config["bts_client"]
     config_file.close()

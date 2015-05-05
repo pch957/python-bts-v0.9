@@ -9,9 +9,13 @@
 #
 from bts.api import BTS
 import json
+import os
 
 
-config_file = open("config.json")
+config_file_name = os.getenv("HOME")+"/.python-bts.json"
+if not os.path.isfile(config_file_name):
+    config_file_name = "/etc/python-bts.json"
+config_file = open(config_file_name)
 config = json.load(config_file)
 config_bts = config["bts_client"]
 config_file.close()
