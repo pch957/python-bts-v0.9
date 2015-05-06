@@ -23,6 +23,7 @@ Quick Start
        $ vim -p ~/.python-bts/*.json
 
 #. Run::
+
        $ bts_delegate_task.py 
        $ bts_delegate_watch.py 
 
