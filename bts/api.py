@@ -52,6 +52,9 @@ class BTS():
             to_fixed_point, json.dumps(payload)), headers=headers)
         return response
 
+    def get_info(self):
+        return self.request("get_info", []).json()["result"]
+
     def get_asset_info(self, asset):
         asset = str(asset)
         if asset not in self.asset_info:

@@ -26,7 +26,7 @@ class TestMain(object):
                  config_bts["host"], config_bts["port"])
 
     def test_info(self):
-        result = self.client.request("get_info", []).json()["result"]
+        result = self.client.get_info()
         pprint("======= test_info =========", self.logfile)
         pprint(result, self.logfile)
         assert result["blockchain_head_block_num"] > 1

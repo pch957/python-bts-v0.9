@@ -265,7 +265,8 @@ setup_dict = dict(
     cmdclass={'test': TestAllCommand},
     zip_safe=False,  # don't use eggs
     scripts=["scripts/bts_delegate_task.py"],
-    data_files=[("/usr/share/python-bts/", ["config/bts_client.json", "config/delegate_task.json"])],
+    data_files=[("/usr/share/python-bts/",
+                 ["config/bts_client.json", "config/delegate_task.json"])],
     entry_points={
         'console_scripts': [
             'bts_cli = bts.main:entry_point'
