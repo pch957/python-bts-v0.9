@@ -1,0 +1,14 @@
+{
+    "delegate_watch": {
+        "bts_client": "client_default",
+        "sender": "alt@botsbots.com",
+        "name": "alt",
+        "contact": {
+            "alt@btsbots.com": {
+                "delegates" : ["delegate-baozi", "delegate.baozi"],
+                "enable" : 1
+            }
+        }
+    }
+}
+

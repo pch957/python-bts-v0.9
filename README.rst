@@ -6,57 +6,29 @@ bitshares api for python
    :target: https://bitsharestalk.org
 
 This project provides bitshares api for python project
+and some tools
 
 Project Setup
 =============
 
-Instructions
+Quick Start
 ------------
-#. Clone the project ::
+#. Install::
 
-        git clone git@github.com:pch957/python-bts.git
-        cd python-bts
+       $ sudo pip install bts
 
-#. Install the project's development and runtime requirements::
+#. configuration::
 
-        sudo pip install -r requirements-dev.txt
+       $ cp -a /usr/share/python-bts ~/.python-bts
+       $ vim -p ~/.python-bts/*.json
 
-#. Install ``argparse`` package when developing for Python 2.6::
+#. Run::
+       $ bts_delegate_task.py 
+       $ bts_delegate_watch.py 
 
-        sudo pip install argparse
-
-#. copy config.json.sample to config.json, and change the parameter::
-
-        cp config.json.sample config.json
-        vim config.json
-
-#. Run the tests::
-
-        paver test_all
-
-   You should see output similar to this::
-
-       $ paver test_all
-       ---> pavement.test_all
-       No style errors
-       ========================================================================= test session starts ==========================================================================
-       platform linux2 -- Python 2.7.3[pypy-2.2.1-final] -- pytest-2.5.1
-       collected 7 items 
-
-       tests/test_main.py .......
-
-       ======================================================================= 7 passed in 0.59 seconds =======================================================================
-         ___  _   ___ ___ ___ ___
-        | _ \/_\ / __/ __| __|   \
-        |  _/ _ \\__ \__ \ _|| |) |
-        |_|/_/ \_\___/___/___|___/
-
-   The substitution performed is rather naive, so some style errors may be reported if the description or name cause lines to be too long. Correct these manually before moving to the next step. If any unit tests fail to pass, please report an issue.
-
-#. build and install::
-
-        paver build
-        sudo paver install
+Configuration
+------------
+todo
 
 Supported Python Versions
 =========================
