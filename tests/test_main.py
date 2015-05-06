@@ -18,13 +18,10 @@ import os
 
 class TestMain(object):
     logfile = open("/tmp/test-bts-api.log", 'a')
-    config_file_name = os.getenv("HOME")+"/.python-bts.json"
-    if not os.path.isfile(config_file_name):
-        config_file_name = "/etc/python-bts.json"
-    config_file = open(config_file_name)
-    config = json.load(config_file)
-    config_bts = config["bts_client"]
-    config_file.close()
+    config_file = os.getenv("HOME")+"/.python-bts/bts_client.json"
+    fd_config = open(config_file)
+    config_bts = json.load(fd_config)["client_default"]
+    fd_config.close()
     client = BTS(config_bts["user"], config_bts["password"],
                  config_bts["host"], config_bts["port"])
 

@@ -1,11 +1,6 @@
 {
-    "bts_client": {
-        "host": "localhost",
-        "port": "9988",
-        "user": "alt",
-        "password": "alt"
-    },
-    "delegate_tasks":{
+    "delegate_task":{
+        "bts_client": "client_default",
         "delegate_list": ["delegate.baozi","delegate-baozi","www.bts-hk"],
         "common": "set the frequency, how many seconds call the loop task",
         "base_timer": 10,

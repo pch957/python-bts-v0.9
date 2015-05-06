@@ -15,20 +15,23 @@ import os
 
 class DelegateTask(object):
 
-    def __init__(self, config_file):
-        self.load_config(config_file)
+    def __init__(self):
+        self.load_config()
         self.init_bts_price()
         self.setup_log()
         self.init_task_feed_price()
 
-    def load_config(self, config_file):
-        fs_config = open(config_file)
-        self.config = json.load(fs_config)
-        self.config_bts = self.config["bts_client"]
-        self.config = self.config["delegate_tasks"]
+    def load_config(self):
+        config_file = os.getenv("HOME")+"/.python-bts/delegate_task.json"
+        fd_config = open(config_file)
+        self.config = json.load(fd_config)["delegate_task"]
         self.config_price_feed = self.config["price_feed"]
         self.config_withdraw_pay = self.config["withdraw_pay"]
-        fs_config.close()
+        fd_config.close()
+        config_file = os.getenv("HOME")+"/.python-bts/bts_client.json"
+        fd_config = open(config_file)
+        self.config_bts = json.load(fd_config)[self.config["bts_client"]]
+        fd_config.close()
 
     def init_bts_price(self):
         config_bts = self.config_bts
@@ -222,10 +225,7 @@ class DelegateTask(object):
             time.sleep(int(self.config["base_timer"]))
 
 if __name__ == '__main__':
-    config_file = os.getenv("HOME")+"/.python-bts.json"
-    if not os.path.isfile(config_file):
-        config_file = "/etc/python-bts.json"
-    delegate_task = DelegateTask(config_file)
+    delegate_task = DelegateTask()
     try:
         delegate_task.excute()
     except Exception as e:

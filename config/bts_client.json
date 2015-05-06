@@ -1,0 +1,14 @@
+{
+    "client_default": {
+        "host": "localhost",
+        "port": "9988",
+        "user": "alt",
+        "password": "alt"
+    },
+    "client_other": {
+        "host": "localhost",
+        "port": "9980",
+        "user": "alt",
+        "password": "alt"
+    }
+}
