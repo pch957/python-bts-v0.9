@@ -159,7 +159,7 @@ class DelegateTask(object):
         publish_feeds = []
         for asset in median_price:
             publish_feeds.append(
-                [asset, "%.15f" % (median_price[asset] * self.discount)])
+                [asset, median_price[asset] * self.discount])
         self.logger.info("publish price %s", publish_feeds)
         for delegate in self.config["delegate_list"]:
             self.client.publish_feeds(delegate, publish_feeds)

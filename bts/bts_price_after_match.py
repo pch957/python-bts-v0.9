@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from bts.exchanges import Exchanges
+from bts.misc import get_median
 import time
 #from pprint import pprint
 
@@ -86,15 +87,6 @@ class BTSPriceAfterMatch(object):
             self.order_book_all["bids"], reverse=True)
         self.order_book_all["asks"] = sorted(self.order_book_all["asks"])
 
-    def get_median(self, prices):
-        lenth = len(prices)
-        _index = int(lenth / 2)
-        if lenth % 2 == 0:
-            median_price = (prices[_index - 1] + prices[_index]) / 2
-        else:
-            median_price = prices[_index]
-        return median_price
-
     def get_spread_order_book(self, spread=0.0):
         order_bids = []
         order_asks = []
@@ -121,7 +113,7 @@ class BTSPriceAfterMatch(object):
 
     def get_match_result(self, order_bids, order_asks, price_list):
         bid_volume = ask_volume = 0
-        median_price = self.get_median(price_list)
+        median_price = get_median(price_list)
         for order in order_bids:
             if order[0] < median_price:
                 break

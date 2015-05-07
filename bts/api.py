@@ -3,28 +3,9 @@
 import json
 import requests
 import logging
-import re
 
-
-def to_fixed_point(match):
-    """Return the fixed point form of the matched number.
-
-    Parameters:
-        match is a MatchObject that matches exp_regex or similar.
-
-    If you wish to make match using your own regex, keep the following in mind:
-        group 1 should be the coefficient
-        group 3 should be the sign
-        group 4 should be the exponent
-    """
-    sign = -1 if match.group(3) == "-" else 1
-    coefficient = float(match.group(1))
-    exponent = sign * float(match.group(4))
-    if exponent <= 0:
-        format_str = "%." + "%d" % (-exponent + len(match.group(1)) - 2) + "f"
-    else:
-        format_str = "%.1f"
-    return format_str % (coefficient * 10 ** exponent)
+from bts.misc import trim_float_precision
+from bts.misc import to_fixed_point
 
 
 class BTS():
@@ -47,9 +28,8 @@ class BTS():
             'content-type': 'application/json',
             'Authorization': "Basic YTph"
         }
-        exp_regex = re.compile(r"(\d+(\.\d+)?)[Ee](\+|-)(\d+)")
-        response = requests.post(self.url, data=exp_regex.sub(
-            to_fixed_point, json.dumps(payload)), headers=headers)
+        response = requests.post(self.url, data=to_fixed_point(
+            json.dumps(payload)), headers=headers)
         return response
 
     def get_info(self):
@@ -77,6 +57,9 @@ class BTS():
         return int(self.get_asset_info(asset)["issuer_id"]) == -2
 
     def publish_feeds(self, delegate, feed_list):
+        # v0.9 only support string
+        for feed in feed_list:
+            feed[1] = to_fixed_point(feed[1])
         response = self.request("wallet_publish_feeds", [delegate, feed_list])
         if response.status_code != 200:
             return False
@@ -86,8 +69,7 @@ class BTS():
     def transfer(self, trx):
         # v0.9 only support string
         precision = str(int(self.get_asset_precision(trx[1])))
-        format_str = "%." + "%d" % (len(precision) - 1) + "f"
-        trx[0] = format_str % trx[0]
+        trx[0] = trim_float_precision(trx[0], precision)
         response = self.request("wallet_transfer", trx)
         return response.json()
 
@@ -96,8 +78,8 @@ class BTS():
         for o in new_orders:
             asset = o[1][2]
             precision = str(int(self.get_asset_precision(asset)))
-            format_str = "%." + "%d" % (len(precision) - 1) + "f"
-            o[1][1] = format_str % o[1][1]
+            o[1][1] = trim_float_precision(o[1][1], precision)
+            o[1][3] = to_fixed_point(o[1][3])
 
         trx = self.request(
             "wallet_market_batch_update", [canceled, new_orders, True]).json()

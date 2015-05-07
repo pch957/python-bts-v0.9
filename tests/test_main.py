@@ -9,6 +9,9 @@ import pytest
 parametrize = pytest.mark.parametrize
 
 from bts.api import BTS
+from bts.misc import trim_float_precision
+from bts.misc import to_fixed_point
+from bts.misc import get_median
 from bts.exchanges import Exchanges
 from bts.bts_price_after_match import BTSPriceAfterMatch
 import json
@@ -24,6 +27,18 @@ class TestMain(object):
     fd_config.close()
     client = BTS(config_bts["user"], config_bts["password"],
                  config_bts["host"], config_bts["port"])
+
+    def test_float_precision(self):
+        assert trim_float_precision(0.1323234234234234, 10000) == '0.1323'
+
+    def test_fixed_point(self):
+        assert to_fixed_point("hello 3.1415926E-3") == 'hello 0.0031415926'
+
+    def test_get_median(self):
+        assert get_median([1, 2, 3, 4]) == 2.5
+        assert get_median([1, 2, 3]) == 2
+        assert get_median([1]) == 1
+        assert get_median([]) is None
 
     def test_info(self):
         result = self.client.get_info()
