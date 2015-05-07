@@ -9,6 +9,7 @@ from bts.misc import to_fixed_point
 class BTSMarket():
     def __init__(self, client):
         self.client = client
+        self.order_owner = [0, 0]
 
     def get_bid_ask(self, quote, base, raw_order_book):
         quote_precision = self.client.get_asset_precision(quote)
@@ -204,17 +205,19 @@ class BTSMarket():
                 return {"quote": quote, "base": base, "price": price,
                         "volume": volume}
 
-    def update_order_owner(self, place_recs, order_owner):
+    def update_order_owner(self, place_recs):
         for rec in place_recs:
-            type_owner = [rec["type"], rec["owner"]]
-            if len(order_owner) == 0:
-                order_owner.append(type_owner)
-            elif type_owner != order_owner[-1]:
-                order_owner.append(type_owner)
-                if len(order_owner) > 100:
-                    order_owner.pop(0)
+            if rec["type"] == "ask":
+                order_type = "ask"
+            elif rec["type"] == "bid" or rec["type"] == "short":
+                order_type = "bid"
+            type_owner = [order_type, rec["owner"]]
+            if type_owner != self.order_owner[0]:
+                self.order_owner.insert(0, type_owner)
+                if len(self.order_owner) > 100:
+                    self.order_owner.pop()
 
-    def get_order_deal_rec(self, height, order_owner):
+    def get_order_deal_rec(self, height):
         order_deal_recs = []
         trxs = self.client.request(
             "blockchain_list_market_transactions", [height]).json()["result"]
@@ -224,7 +227,7 @@ class BTSMarket():
             ask_owner = _trx["ask_index"]["owner"]
             key_balance = "%s_received" % trx_type
             key_price = "%s_index" % trx_type
-            for owner in reversed(order_owner):
+            for owner in self.order_owner:
                 if owner[0] == "bid" and bid_owner == owner[1]:
                     break
                 elif owner[0] == "ask" and ask_owner == owner[1]:

@@ -71,7 +71,6 @@ class GetMarketTrx(object):
     def excute(self):
         chain_info = self.client.get_info()
         height_now = int(chain_info["blockchain_head_block_num"])
-        order_owner = []
         if self.height == -1:
             self.height = height_now - 1000
         while self.height < height_now:
@@ -79,11 +78,11 @@ class GetMarketTrx(object):
             trxs = self.client.request(
                 "blockchain_get_block_transactions",
                 [self.height]).json()["result"]
-            recs = self.market.get_order_deal_rec(self.height, order_owner)
+            recs = self.market.get_order_deal_rec(self.height)
             self.display_deal_trx(recs)
             recs = self.market.get_order_place_rec(trxs)
             self.display_place_trx(recs)
-            self.market.update_order_owner(recs, order_owner)
+            self.market.update_order_owner(recs)
 
 if __name__ == '__main__':
     get_market_trx = GetMarketTrx()
