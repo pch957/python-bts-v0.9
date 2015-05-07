@@ -9,6 +9,7 @@ import pytest
 parametrize = pytest.mark.parametrize
 
 from bts.api import BTS
+from bts.market import BTSMarket
 from bts.misc import trim_float_precision
 from bts.misc import to_fixed_point
 from bts.misc import get_median
@@ -27,6 +28,7 @@ class TestMain(object):
     fd_config.close()
     client = BTS(config_bts["user"], config_bts["password"],
                  config_bts["host"], config_bts["port"])
+    bts_market = BTSMarket(client)
 
     def test_float_precision(self):
         assert trim_float_precision(0.1323234234234234, 10000) == '0.1323'
@@ -77,7 +79,7 @@ class TestMain(object):
         pprint(balance, self.logfile)
 
     def test_order_book(self):
-        order_book = self.client.get_order_book("CNY", "BTS")
+        order_book = self.bts_market.get_order_book("CNY", "BTS")
         pprint("======= test_order_book =========", self.logfile)
         pprint(order_book, self.logfile)
         assert len(order_book) > 0
@@ -118,7 +120,7 @@ class TestMain(object):
         assert len(order_book["bids"]) > 0
 
     def test_bts_price_after_match(self):
-        bts_price = BTSPriceAfterMatch(self.client)
+        bts_price = BTSPriceAfterMatch(self.bts_market)
         bts_price.get_rate_from_yahoo()
 
         # get all order book

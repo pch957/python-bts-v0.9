@@ -7,8 +7,8 @@ import time
 
 class BTSPriceAfterMatch(object):
 
-    def __init__(self, client, exchanges=None):
-        self.client = client
+    def __init__(self, bts_market, exchanges=None):
+        self.bts_market = bts_market
         if exchanges:
             self.exchanges = exchanges
         else:
@@ -39,11 +39,11 @@ class BTSPriceAfterMatch(object):
         return True
 
     def get_order_book_from_wallet(self):
-        _order_book = self.client.get_order_book("CNY", "BTS")
+        _order_book = self.bts_market.get_order_book("CNY", "BTS")
         if _order_book:
             self.order_book["wallet_cny"] = _order_book
             self.order_book["wallet_cny"]["timestamp"] = self.timestamp
-        _order_book = self.client.get_order_book("USD", "BTS")
+        _order_book = self.bts_market.get_order_book("USD", "BTS")
         if _order_book:
             self.change_order_to_cny(_order_book, "USD")
             self.order_book["wallet_usd"] = _order_book
