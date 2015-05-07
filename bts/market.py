@@ -64,8 +64,8 @@ class BTSMarket():
         base_precision = self.client.get_asset_precision(base)
 
         ### maybe here is not exactly right for margin call order
-        price_margin_call = 0.9 * feed_price
-        #price_margin_call = feed_price
+        #price_margin_call = 0.9 * feed_price
+        price_margin_call = feed_price
         volume_margin_call = 0.0
         volume_expired = 0.0
         for order in raw_order_book[1]:
