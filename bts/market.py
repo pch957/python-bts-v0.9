@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 # from decimal import *
-#import json
-#import requests
-#import logging
+#from pprint import pprint
 
 from bts.misc import trim_float_precision
 from bts.misc import to_fixed_point
@@ -118,3 +116,136 @@ class BTSMarket():
         trx = self.client.request(
             "wallet_market_batch_update", [canceled, new_orders, True]).json()
         return trx
+
+    def get_order_place_stage1(self, _op):
+        amount_info = _op["data"]["amount"]
+        if _op["type"] == "bid_op_type":
+            market_index = _op["data"]["bid_index"]
+            order_type = "bid"
+        elif _op["type"] == "ask_op_type":
+            market_index = _op["data"]["ask_index"]
+            order_type = "ask"
+        elif _op["type"] == "short_op_v2_type":
+            market_index = _op["data"]["short_index"]
+            order_type = "short"
+        elif _op["type"] == "cover_op_type":
+            market_index = _op["data"]["cover_index"]
+            order_type = "cover"
+        elif _op["type"] == "add_collateral_op_type":
+            market_index = _op["data"]["cover_index"]
+            order_type = "add_collateral"
+
+        owner = market_index["owner"]
+        price_info = market_index["order_price"]
+        if order_type == "short":
+            if "limit_price" in market_index:
+                price_info = market_index["limit_price"]
+            else:
+                price_info["ratio"] = None
+        return order_type, owner, price_info, amount_info
+
+    def get_order_place_stage2(self, args):
+        order_type, owner, price_info, amount_info = args
+        quote = self.client.get_asset_symbol(price_info["quote_asset_id"])
+        base = self.client.get_asset_symbol(price_info["base_asset_id"])
+        quote_precision = self.client.get_asset_precision(quote)
+        base_precision = self.client.get_asset_precision(base)
+        price = price_info["ratio"]
+        if price:
+            price = float(price) * base_precision / quote_precision
+        if order_type == "cover" or order_type == "bid":
+            amount = float(amount_info) / quote_precision
+        else:
+            amount = float(amount_info) / base_precision
+        if amount < 0:
+            amount *= -1.0
+            cancel = True
+        else:
+            cancel = False
+        return {"type": order_type, "amount": amount, "price": price,
+                "quote": quote, "base": base, "owner": owner, "cancel": cancel}
+
+    def get_order_place_rec(self, trxs):
+        order_place_recs = []
+        for _trx in trxs:
+            _trx_id = _trx[0][:8]
+            _block = _trx[1]["chain_location"]["block_num"]
+            _ops = _trx[1]["trx"]["operations"]
+            for _op in _ops:
+                if _op["type"] == "update_feed_op_type":
+                    break
+                if _op["type"] == "bid_op_type" or \
+                        _op["type"] == "ask_op_type" or \
+                        _op["type"] == "short_op_v2_type" or \
+                        _op["type"] == "cover_op_type" or \
+                        _op["type"] == "add_collateral_op_type":
+                    rec = self.get_order_place_stage2(
+                        self.get_order_place_stage1(_op))
+                else:
+                    continue
+                rec["trx_id"] = _trx_id
+                rec["block"] = _block
+                rec["timestamp"] = self.client.get_time_stamp(_block)
+                order_place_recs.append(rec)
+        return order_place_recs
+
+    def get_order_deal(self, price_info, balance_info):
+            quote = self.client.get_asset_symbol(
+                price_info["order_price"]["quote_asset_id"])
+            base = self.client.get_asset_symbol(
+                price_info["order_price"]["base_asset_id"])
+            quote_precision = self.client.get_asset_precision(quote)
+            base_precision = self.client.get_asset_precision(base)
+            price = float(price_info["order_price"]["ratio"])\
+                * base_precision/quote_precision
+            volume = float(balance_info["amount"]) / base_precision
+            ### there is a bug, market engine never stop, we should ignore it
+            if base != "BTS" or volume > 0.00000000001:
+                return {"quote": quote, "base": base, "price": price,
+                        "volume": volume}
+
+    def update_order_owner(self, place_recs, order_owner):
+        for rec in place_recs:
+            type_owner = [rec["type"], rec["owner"]]
+            if len(order_owner) == 0:
+                order_owner.append(type_owner)
+            elif type_owner != order_owner[-1]:
+                order_owner.append(type_owner)
+                if len(order_owner) > 100:
+                    order_owner.pop(0)
+
+    def get_order_deal_rec(self, height, order_owner):
+        order_deal_recs = []
+        trxs = self.client.request(
+            "blockchain_list_market_transactions", [height]).json()["result"]
+        for _trx in trxs:
+            trx_type = "bid"
+            bid_owner = _trx["bid_index"]["owner"]
+            ask_owner = _trx["ask_index"]["owner"]
+            key_balance = "%s_received" % trx_type
+            key_price = "%s_index" % trx_type
+            for owner in reversed(order_owner):
+                if owner[0] == "bid" and bid_owner == owner[1]:
+                    break
+                elif owner[0] == "ask" and ask_owner == owner[1]:
+                    trx_type = "ask"
+                    key_balance = "%s_paid" % trx_type
+                    key_price = "%s_index" % trx_type
+                    break
+            rec = self.get_order_deal(_trx[key_price], _trx[key_balance])
+            if not rec:
+                continue
+            timestamp = self.client.get_time_stamp(height)
+            rec["timestamp"] = timestamp
+            rec["type"] = trx_type
+            rec["block"] = height
+            order_deal_recs.append(rec)
+        return order_deal_recs
+
+    def get_market_status(self, quote, base):
+        ## peg assest: lastfeed, cover_order_expired_time, timestamp,
+        pass
+
+    def need_update_order_book(self, market, block_info, market_status,
+                               deal_trx, place_trx):
+        pass

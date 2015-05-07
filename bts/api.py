@@ -13,6 +13,7 @@ class BTS():
     def __init__(self, user, password, host, port):
         self.asset_dict = {}
         self.asset_info = {}
+        self.block_timestamp = {}
         self.url = "http://%s:%s@%s:%s/rpc" % (user, password, host, str(port))
         self.log = logging.getLogger('bts')
         # self.log.info("Initializing with URL:  " + self.url)
@@ -55,6 +56,16 @@ class BTS():
 
     def is_peg_asset(self, asset):
         return int(self.get_asset_info(asset)["issuer_id"]) == -2
+
+    def get_time_stamp(self, block):
+        if block not in self.block_timestamp:
+            block_info = self.request(
+                "blockchain_get_block", [block]).json()["result"]
+            self.block_timestamp[block] = block_info["timestamp"]
+            if len(self.block_timestamp) >= 1000:
+                for _block in sorted(self.order_book.keys())[:500]:
+                    self.order_book.pop(_block)
+        return self.block_timestamp[block]
 
     def publish_feeds(self, delegate, feed_list):
         # v0.9 only support string

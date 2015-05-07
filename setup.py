@@ -264,7 +264,8 @@ setup_dict = dict(
     ],
     cmdclass={'test': TestAllCommand},
     zip_safe=False,  # don't use eggs
-    scripts=["scripts/bts_delegate_task.py", "scripts/bts_delegate_watch.py"],
+    scripts=["scripts/bts_delegate_task.py", "scripts/bts_delegate_watch.py",
+             "scripts/bts_get_market_trx.py"],
     data_files=[("/usr/share/python-bts/",
                  ["config/bts_client.json", "config/delegate_task.json",
                   "config/delegate_watch.json"])]
