@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-#!/usr/bin/python
-
 from bts.exchanges import Exchanges
 import time
 #from pprint import pprint

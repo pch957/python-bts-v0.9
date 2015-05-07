@@ -267,16 +267,7 @@ setup_dict = dict(
     scripts=["scripts/bts_delegate_task.py", "scripts/bts_delegate_watch.py"],
     data_files=[("/usr/share/python-bts/",
                  ["config/bts_client.json", "config/delegate_task.json",
-                  "config/delegate_watch.json"])],
-    entry_points={
-        'console_scripts': [
-            'bts_cli = bts.main:entry_point'
-        ],
-        # if you have a gui, use this
-        # 'gui_scripts': [
-        #     'bts_gui = bts.gui:entry_point'
-        # ]
-    }
+                  "config/delegate_watch.json"])]
 )
 
 
