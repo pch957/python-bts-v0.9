@@ -211,6 +211,8 @@ class BTSMarket():
                 order_type = "ask"
             elif rec["type"] == "bid" or rec["type"] == "short":
                 order_type = "bid"
+            else:
+                continue
             type_owner = [order_type, rec["owner"]]
             if type_owner != self.order_owner[0]:
                 self.order_owner.insert(0, type_owner)
