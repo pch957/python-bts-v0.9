@@ -195,9 +195,7 @@ class DelegateTask(object):
         for pay_list in self.config_withdraw_pay["pay_list"]:
             for delegate_account in pay_list["delegate_account"]:
                 pay_balance = pay_list["pay_balance"]
-                response = self.client.request("blockchain_get_account",
-                                               [delegate_account])
-                account_info = response.json()["result"]
+                account_info = self.client.get_account_info(delegate_account)
                 balance = float(account_info['delegate_info']['pay_balance'])/(
                     self.client.get_asset_precision("BTS"))
                 if balance > pay_balance + 10:
@@ -205,9 +203,8 @@ class DelegateTask(object):
                         self.logger.info("withdraw pay %s %s %s"
                                          % (delegate_account, pay_account,
                                             pay_balance*percent))
-                        self.client.request("wallet_delegate_withdraw_pay",
-                                            [delegate_account, pay_account,
-                                             pay_balance*percent])
+                        self.client.delegate_withdraw_pay(
+                            delegate_account, pay_account, pay_balance*percent)
 
     def task_withdraw_pay(self):
         self.withdraw_pay()

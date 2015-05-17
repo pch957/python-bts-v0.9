@@ -85,7 +85,7 @@ class BTS():
         return response.json()
 
     def _get_feed_price(self, quote):
-        if quote == "BTS":
+        if self.get_asset_id(quote) == 0:
             return 1.0
         elif not self.is_peg_asset(quote):
             return None
@@ -97,7 +97,7 @@ class BTS():
             else:
                 return None
 
-    def get_feed_price(self, quote, base="BTS"):
+    def get_feed_price(self, quote, base=0):
         feed_price_base = self._get_feed_price(base)
         feed_price_quote = self._get_feed_price(quote)
         if feed_price_base and feed_price_quote:
@@ -121,3 +121,26 @@ class BTS():
             return balance[asset]
         else:
             return None
+
+    def get_account_info(self, account):
+        return self.request(
+            "blockchain_get_account", [account]).json()["result"]
+
+    def delegate_withdraw_pay(self, delegate_account, pay_account, amount):
+        # v0.9 only support string
+        precision = str(int(self.get_asset_precision(0)))
+        amount = trim_float_precision(amount, precision)
+        self.request("wallet_delegate_withdraw_pay",
+                     [delegate_account, pay_account, amount])
+
+    def list_blocks(self, height, limit):
+        return self.request(
+            "blockchain_list_blocks", [height, limit]).json()["result"]
+
+    def list_active_delegates(self, first=0, count=101):
+        return self.request("blockchain_list_active_delegates",
+                            [first, count]).json()["result"]
+
+    def get_block_transactions(self, height):
+        return self.request("blockchain_get_block_transactions",
+                            [height]).json()["result"]

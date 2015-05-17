@@ -51,8 +51,7 @@ class DelegateWatch(object):
         info = self.bts_client.get_info()
         self.height = int(info["blockchain_head_block_num"])
         self.round_left = int(info["blockchain_blocks_left_in_round"])
-        self.active_delegates = self.bts_client.request(
-            "blockchain_list_active_delegates", [0, 101]).json()["result"]
+        self.active_delegates = self.bts_client.list_active_delegates()
         self.active_offset = self.height
         for delegate in self.active_delegates:
             last_block_num = int(
@@ -91,8 +90,7 @@ class DelegateWatch(object):
 
     def check_missed_block(self, height):
         limit = height - self.height + 1
-        list_blocks = self.bts_client.request(
-            "blockchain_list_blocks", [height, limit]).json()["result"]
+        list_blocks = self.bts_client.list_blocks(height, limit)
         last_timestamp = -1
         for block in reversed(list_blocks):
             timestamp = int(block["timestamp"][-2:])
@@ -134,9 +132,8 @@ class DelegateWatch(object):
                         round_left = 1
                         height = self.height+self.round_left-1
                     else:
-                        response = self.bts_client.request(
-                            "blockchain_list_active_delegates", [0, 101])
-                        self.active_delegates = response.json()["result"]
+                        self.active_delegates = \
+                            self.bts_client.list_active_delegates()
                 self.check_missed_block(height)
                 self.height = height
                 self.round_left = round_left

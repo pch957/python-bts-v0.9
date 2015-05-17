@@ -136,3 +136,31 @@ class TestMain(object):
         pprint("======= test_bts_price_after_match =========", self.logfile)
         pprint([volume, real_price], self.logfile)
         assert volume > 0
+
+    def test_account_info(self):
+        account_info = self.client.get_account_info("baozi")
+        assert account_info is not None
+        pprint("======= test_account_info =========", self.logfile)
+        pprint(account_info, self.logfile)
+        account_info = self.client.get_account_info("none.baozi")
+        assert account_info is None
+
+    def test_list_blocks(self):
+        list_blocks = self.client.list_blocks(100000, 10)
+        assert len(list_blocks) == 10
+        pprint("======= test_list_blocks  =========", self.logfile)
+        pprint(list_blocks, self.logfile)
+
+    def test_list_active_delegates(self):
+        active_delegates = self.client.list_active_delegates(0, 2)
+        assert len(active_delegates) == 2
+        pprint("======= test_list_active_delegates =========", self.logfile)
+        pprint(active_delegates, self.logfile)
+
+    def test_get_block_transactions(self):
+        trxs = self.client.get_block_transactions(2549745)
+        assert len(trxs) == 3
+        pprint("======= test_get_block_transactions =========", self.logfile)
+        pprint(trxs, self.logfile)
+        trxs = self.client.get_block_transactions(2549737)
+        assert len(trxs) == 0
