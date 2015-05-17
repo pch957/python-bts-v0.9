@@ -5,6 +5,7 @@ from __future__ import print_function
 
 from bts.bts_price_after_match import BTSPriceAfterMatch
 from bts.api import BTS
+from bts.market import BTSMarket
 import time
 import json
 import logging
@@ -40,7 +41,8 @@ class DelegateTask(object):
         config_bts = self.config_bts
         self.client = BTS(config_bts["user"], config_bts["password"],
                           config_bts["host"], config_bts["port"])
-        self.bts_price = BTSPriceAfterMatch(self.client)
+        self.bts_market = BTSMarket(self.client)
+        self.bts_price = BTSPriceAfterMatch(self.bts_market)
 
     def setup_log(self):
         # Setting up Logger
