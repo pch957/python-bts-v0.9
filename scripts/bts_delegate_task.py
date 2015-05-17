@@ -25,8 +25,9 @@ class DelegateTask(object):
     def load_config(self):
         config_file = os.getenv("HOME")+"/.python-bts/delegate_task.json"
         fd_config = open(config_file)
-        self.config = json.load(fd_config)["delegate_task"]
-        self.notify = json.load(fd_config)["notify"]
+        config = json.load(fd_config)
+        self.notify = config["notify"]
+        self.config = config["delegate_task"]
         self.config_price_feed = self.config["price_feed"]
         self.config_withdraw_pay = self.config["withdraw_pay"]
         fd_config.close()

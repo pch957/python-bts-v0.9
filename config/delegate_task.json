@@ -1,6 +1,6 @@
 {
     "notify":{
-        "common": change enable to 1, and setup smtp server, if you want email notify
+        "common": "change enable to 1, and setup smtp server, if you want email notify",
         "enable": 0,
         "smtp_server": "localhost",
         "sender": "alt@btsbots.com",
@@ -41,7 +41,7 @@
             "run_timer": 0,
             "mail_list": {
                 "baozi": ["pch957@163.com"],
-                "www.bts-hk": ["woniu@bts.hk"]
+                "bts-hk": ["woniu@bts.hk"]
             },
             "pay_list": [
                 {
