@@ -166,8 +166,10 @@ class DelegateTask(object):
             publish_feeds.append(
                 [asset, median_price[asset] * self.discount])
         self.logger.info("publish price %s", publish_feeds)
+        active_delegates = self.client.list_active_delegates()
         for delegate in self.config["delegate_list"]:
-            self.client.publish_feeds(delegate, publish_feeds)
+            if any(d['name'] == delegate for d in active_delegates):
+                self.client.publish_feeds(delegate, publish_feeds)
 
     def display_price(self, median_price, current_feed_price):
         os.system("clear")
