@@ -11,6 +11,7 @@ import logging
 import logging.handlers
 from math import fabs
 import os
+import smtplib
 
 
 class DelegateTask(object):
@@ -25,6 +26,7 @@ class DelegateTask(object):
         config_file = os.getenv("HOME")+"/.python-bts/delegate_task.json"
         fd_config = open(config_file)
         self.config = json.load(fd_config)["delegate_task"]
+        self.notify = json.load(fd_config)["notify"]
         self.config_price_feed = self.config["price_feed"]
         self.config_withdraw_pay = self.config["withdraw_pay"]
         fd_config.close()
@@ -191,6 +193,26 @@ class DelegateTask(object):
             self.publish_feed_price(median_price)
         self.display_price(median_price, current_feed_price)
 
+    def pay_notify(self, delegate_account, pay_account,
+                   pay_balance, percent):
+        if self.notify["enable"] == 0:
+            return
+        mail_list = self.config_withdraw_pay["mail_list"]
+        if pay_account not in mail_list:
+            return
+        sender = self.notify["sender"]
+        msg_from = "From: %s <%s>\n" % (self.notify["name"], sender)
+        msg_to = ""
+        for receiver in mail_list[pay_account]:
+            msg_to = msg_to+"To: <%s>\n" % receiver
+
+        msg_subject = "Subject: pay day from %s\n" % delegate_account
+        msg_content = "you have got payment %d*%.3f BTS\n" % (
+            pay_balance, percent)
+        message = msg_from+msg_to+msg_subject+msg_content
+        smtpObj = smtplib.SMTP(self.notify["smtp_server"])
+        smtpObj.sendmail(sender, mail_list[pay_account], message)
+
     def withdraw_pay(self):
         for pay_list in self.config_withdraw_pay["pay_list"]:
             for delegate_account in pay_list["delegate_account"]:
@@ -205,6 +227,8 @@ class DelegateTask(object):
                                             pay_balance*percent))
                         self.client.delegate_withdraw_pay(
                             delegate_account, pay_account, pay_balance*percent)
+                        self.pay_notify(delegate_account, pay_account,
+                                        pay_balance, percent)
 
     def task_withdraw_pay(self):
         self.withdraw_pay()
