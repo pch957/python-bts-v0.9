@@ -19,7 +19,7 @@ class BTSMarket():
         for order in raw_order_book[0]:
             _price = float(order["market_index"]["order_price"]["ratio"]) \
                 * base_precision / quote_precision
-            balance = order["state"]["balance"] / quote_precision
+            balance = float(order["state"]["balance"]) / quote_precision
             _volume = float(balance) / _price
             order_book["bids"].append([_price, _volume])
         for order in raw_order_book[1]:
@@ -246,6 +246,40 @@ class BTSMarket():
             rec["block"] = height
             order_deal_recs.append(rec)
         return order_deal_recs
+
+    def _get_my_order_book(self, quote, base, account=""):
+        return self.client.request("wallet_market_order_list",
+                                   [quote, base, -1, account]).json()["result"]
+
+    def parser_my_order_book(self, quote, base, raw_orders):
+        ### todo, shorts and covers
+        order_ids = []
+        order_book = {"bids": [], "asks": [], "shorts": [], "covers": []}
+        quote_precision = self.client.get_asset_precision(quote)
+        base_precision = self.client.get_asset_precision(base)
+        for item in raw_orders:
+            order_ids.append(item[0])
+            order = item[1]
+            if order["type"] == "ask_order":
+                _price = float(order["market_index"]["order_price"]["ratio"]) \
+                    * base_precision / quote_precision
+                _volume = float(order["state"]["balance"]) / base_precision
+                order_book["asks"].append([_price, _volume])
+            elif order["type"] == "bid_order":
+                _price = float(order["market_index"]["order_price"]["ratio"]) \
+                    * base_precision / quote_precision
+                _volume = float(order["state"]["balance"]) / \
+                    quote_precision / _price
+                order_book["bids"].append([_price, _volume])
+        order_book["asks"] = sorted(order_book["asks"])
+        order_book["bids"] = sorted(order_book["bids"], reverse=True)
+        return order_ids, order_book
+
+    def get_my_order_book(self, quote, base, account=""):
+        raw_orders = self._get_my_order_book(quote, base, account)
+        order_ids, order_book = self.parser_my_order_book(
+            quote, base, raw_orders)
+        return order_book
 
     def get_market_status(self, quote, base):
         ## peg assest: lastfeed, cover_order_expired_time, timestamp,

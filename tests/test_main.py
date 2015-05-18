@@ -164,3 +164,9 @@ class TestMain(object):
         pprint(trxs, self.logfile)
         trxs = self.client.get_block_transactions(2549737)
         assert len(trxs) == 0
+
+    def test_my_order_book(self):
+        order_book = self.bts_market.get_my_order_book("CNY", "BTS")
+        assert order_book is not None
+        pprint("======= test_my_order_book =========", self.logfile)
+        pprint(order_book, self.logfile)
