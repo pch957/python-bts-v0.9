@@ -109,7 +109,10 @@ class BTS():
         balance = {}
         response = self.request("wallet_account_balance", [account])
         if len(response.json()["result"]) < 1:
-            return None
+            if asset == "ALL":
+                return None
+            else:
+                return 0.0
         asset_array = response.json()["result"][0][1]
         for item in asset_array:
             _asset = self.get_asset_symbol(item[0])
