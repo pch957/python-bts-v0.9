@@ -85,7 +85,6 @@ class BTSMarket():
             order_book_cover.append([feed_price, volume_expired])
         if volume_margin_call != 0.0:
             order_book_cover.append([price_margin_call, volume_margin_call])
-        #print(order_book_cover)
         return order_book_cover
 
     def get_order_book(self, quote, base, timestamp=None):

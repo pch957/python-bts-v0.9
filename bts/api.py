@@ -159,5 +159,5 @@ class BTS():
             participation = 0
 
         if age > 15 or participation < 80:
-            return False
-        return True
+            return None
+        return blockchain_info
