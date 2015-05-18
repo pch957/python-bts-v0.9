@@ -147,3 +147,17 @@ class BTS():
     def get_block_transactions(self, height):
         return self.request("blockchain_get_block_transactions",
                             [height]).json()["result"]
+
+    def is_chain_sync(self):
+        blockchain_info = self.get_info()
+        age = int(blockchain_info["blockchain_head_block_age"])
+        participation = \
+            blockchain_info["blockchain_average_delegate_participation"]
+        if participation is not None:
+            participation = int(participation)
+        else:
+            participation = 0
+
+        if age > 15 or participation < 80:
+            return False
+        return True
