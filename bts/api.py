@@ -120,7 +120,7 @@ class BTS():
         elif asset in balance:
             return balance[asset]
         else:
-            return None
+            return 0.0
 
     def get_account_info(self, account):
         return self.request(
