@@ -146,3 +146,19 @@ class BTSPriceAfterMatch(object):
         match_result = sorted(match_result, reverse=True)
         #pprint(match_result)
         return match_result[0]
+
+    def get_valid_depth(self, price, spread=0.0):
+        valid_depth = {}
+        bid_price = price * (1-spread)
+        ask_price = price * (1+spread)
+        for market in self.order_book:
+            valid_depth[market] = {"bids": 0.0, "asks": 0.0}
+            for order in self.order_book[market]["bids"]:
+                if order[0] < bid_price:
+                    break
+                valid_depth[market]["bids"] += order[1]
+            for order in self.order_book[market]["asks"]:
+                if order[0] > ask_price:
+                    break
+                valid_depth[market]["asks"] += order[1]
+        return valid_depth

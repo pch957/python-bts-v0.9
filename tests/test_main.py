@@ -129,12 +129,14 @@ class TestMain(object):
         # can add weight here
         for order_type in bts_price.order_types:
             for _order in bts_price.order_book["wallet_usd"][order_type]:
-                _order[1] *= 0.5
+                _order[1] *= 0.001
 
         # calculate real price
         volume, volume2, real_price = bts_price.get_real_price(spread=0.01)
+        valid_depth = bts_price.get_valid_depth(price=real_price, spread=0.01)
         pprint("======= test_bts_price_after_match =========", self.logfile)
         pprint([volume, real_price], self.logfile)
+        pprint(valid_depth, self.logfile)
         assert volume > 0
 
     def test_account_info(self):
