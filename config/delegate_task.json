@@ -29,7 +29,7 @@
             },
             "market_weight": {
                 "common": "weight depenth on (depth * scale)",
-                "wallet_usd": 1,
+                "wallet_usd": 0.001,
                 "wallet_cny": 1,
                 "yunbi_cny": 1,
                 "btc38_cny": 1,
