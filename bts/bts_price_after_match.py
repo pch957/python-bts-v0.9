@@ -19,6 +19,7 @@ class BTSPriceAfterMatch(object):
         self.timestamp = 0
         self.rate_cny = []
         self.order_types = ["bids", "asks"]
+        self.need_cover_order = True
 
     def get_rate_from_yahoo(self):
         asset_list_all = ["KRW", "BTC", "SILVER", "GOLD", "TRY",
@@ -38,12 +39,18 @@ class BTSPriceAfterMatch(object):
                 order[0] = order[0] * self.rate_cny[asset]
         return True
 
+    def set_need_cover(self, need_cover):
+        self.need_cover_order = need_cover
+
     def get_order_book_from_wallet(self):
-        _order_book = self.bts_market.get_order_book("CNY", "BTS")
+        need_cover = self.need_cover_order
+        _order_book = self.bts_market.get_order_book(
+            "CNY", "BTS", cover=need_cover)
         if _order_book:
             self.order_book["wallet_cny"] = _order_book
             self.order_book["wallet_cny"]["timestamp"] = self.timestamp
-        _order_book = self.bts_market.get_order_book("USD", "BTS")
+        _order_book = self.bts_market.get_order_book(
+            "USD", "BTS", cover=need_cover)
         if _order_book:
             self.change_order_to_cny(_order_book, "USD")
             self.order_book["wallet_usd"] = _order_book
@@ -149,15 +156,15 @@ class BTSPriceAfterMatch(object):
 
     def get_valid_depth(self, price, spread=0.0):
         valid_depth = {}
-        bid_price = price * (1-spread)
-        ask_price = price * (1+spread)
+        bid_price = price / (1+spread)
+        ask_price = price / (1-spread)
         for market in self.order_book:
             valid_depth[market] = {"bids": 0.0, "asks": 0.0}
-            for order in self.order_book[market]["bids"]:
+            for order in sorted(self.order_book[market]["bids"], reverse=True):
                 if order[0] < bid_price:
                     break
                 valid_depth[market]["bids"] += order[1]
-            for order in self.order_book[market]["asks"]:
+            for order in sorted(self.order_book[market]["asks"]):
                 if order[0] > ask_price:
                     break
                 valid_depth[market]["asks"] += order[1]

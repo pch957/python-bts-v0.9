@@ -43,6 +43,9 @@ class DelegateTask(object):
                           config_bts["host"], config_bts["port"])
         self.bts_market = BTSMarket(self.client)
         self.bts_price = BTSPriceAfterMatch(self.bts_market)
+        ### don't use cover order, because it's feed price related,
+        ### if there is a big order, feed price will down without stop
+        self.bts_price.set_need_cover(False)
 
     def setup_log(self):
         # Setting up Logger

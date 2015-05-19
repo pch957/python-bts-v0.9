@@ -88,7 +88,7 @@ class BTSMarket():
             order_book_cover.append([price_margin_call, volume_margin_call])
         return order_book_cover
 
-    def get_order_book(self, quote, base):
+    def get_order_book(self, quote, base, cover=False):
         raw_order_book = self.client.request(
             "blockchain_market_order_book", [quote, base, -1]).json()["result"]
         order_book = self.get_bid_ask(quote, base, raw_order_book)
@@ -98,8 +98,9 @@ class BTSMarket():
             if feed_price is not None:
                 order_book["bids"].extend(
                     self.get_short(quote, base, feed_price))
-                order_book["asks"].extend(
-                    self.get_cover(quote, base, raw_order_book, feed_price))
+                if cover is True:
+                    order_book["asks"].extend(self.get_cover(
+                        quote, base, raw_order_book, feed_price))
 
         order_book["asks"] = sorted(order_book["asks"])
         order_book["bids"] = sorted(order_book["bids"], reverse=True)
