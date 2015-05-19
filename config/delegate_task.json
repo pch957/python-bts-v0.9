@@ -17,7 +17,8 @@
             "common": "update the feed price at least 23.5 hours a time",
             "max_update_hours": 23.5,
             "price_limit": {
-                "common": "only update price feed when the change rate is between 5% ~ 100%",
+                "common": "only update price feed when the change rate is between 0.5% ~ 50%",
+                "change_ignore": 0.2,
                 "change_min": 0.5,
                 "change_max": 50,
                 "common": "spread bid price to price*(1+spread), ask price to price*(1-spread)",

@@ -136,9 +136,19 @@ class DelegateTask(object):
                 median_price[asset] - self.last_publish_price[asset]) \
                 / self.last_publish_price[asset]
 
+            ### ignore if change less than 0.2%
+            change_ignore = \
+                self.config_price_feed["price_limit"]["change_ignore"]
+            if fabs(price_change) < change_ignore:
+                continue
+
             if median_price[asset] < current_feed_price[asset] / \
                     self.discount and self.last_publish_price[asset] > \
                     current_feed_price[asset] / self.discount:
+                #self.logger.info(
+                #    "need update: %s %s %s" % (
+                #        median_price[asset], self.last_publish_price[asset],
+                #        current_feed_price[asset] / self.discount))
                 return True
             # if  you haven't published a price in the past 20 minutes,
             # and the price change more than 0.5%
