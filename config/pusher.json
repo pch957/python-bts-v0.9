@@ -1,0 +1,6 @@
+{
+    "url": "wss://pusher.btsbots.com/ws",
+    "realm": "realm1",
+    "user": "alt",
+    "password": "connect to alt@bitsharestalk"
+}
