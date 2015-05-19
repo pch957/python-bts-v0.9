@@ -69,8 +69,8 @@ class GetMarketTrx(object):
                     trx["quote"], trx["base"]))
 
     def excute(self):
-        chain_info = self.client.get_info()
-        height_now = int(chain_info["blockchain_head_block_num"])
+        client_info = self.client.get_info()
+        height_now = int(client_info["blockchain_head_block_num"])
         if self.height == -1:
             self.height = height_now - 1000
         while self.height < height_now:
@@ -84,6 +84,7 @@ class GetMarketTrx(object):
 
 if __name__ == '__main__':
     get_market_trx = GetMarketTrx()
+    period = float(get_market_trx .client.chain_info["block_interval"])
     while True:
         get_market_trx.excute()
-        time.sleep(10)
+        time.sleep(period)

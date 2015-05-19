@@ -35,6 +35,8 @@ class DelegateWatch(object):
         config_bts = self.config_bts
         self.bts_client = BTS(config_bts["user"], config_bts["password"],
                               config_bts["host"], config_bts["port"])
+        self.delegate_num = int(self.bts_client.chain_info["delegate_num"])
+        self.period = float(self.bts_client.chain_info["block_interval"])
 
     def setup_log(self):
         # Setting up Logger
@@ -48,9 +50,9 @@ class DelegateWatch(object):
         self.logger.addHandler(fh)
 
     def init_watch(self):
-        info = self.bts_client.get_info()
-        self.height = int(info["blockchain_head_block_num"])
-        self.round_left = int(info["blockchain_blocks_left_in_round"])
+        client_info = self.bts_client.get_info()
+        self.height = int(client_info["blockchain_head_block_num"])
+        self.round_left = int(client_info["blockchain_blocks_left_in_round"])
         self.active_delegates = self.bts_client.list_active_delegates()
         self.active_offset = self.height
         for delegate in self.active_delegates:
@@ -73,7 +75,7 @@ class DelegateWatch(object):
                     self.contact[delegate].append(mail)
 
     def process_missed_block(self, height):
-        index = (height-self.active_offset) % 101
+        index = (height-self.active_offset) % self.delegate_num
         account = self.active_delegates[index]["name"]
         print("missed", height, account)
         self.logger.info("missed %s", account)
@@ -82,7 +84,7 @@ class DelegateWatch(object):
         return account
 
     def get_block_delegate(self, height):
-        index = (height-self.active_offset) % 101
+        index = (height-self.active_offset) % self.delegate_num
         account = self.active_delegates[index]["name"]
         print("......", height, account)
         self.logger.info("%d %s", height, account)
@@ -97,8 +99,8 @@ class DelegateWatch(object):
             block_num = int(block["block_num"])
             if last_timestamp != -1:
                 period = (timestamp - last_timestamp + 60) % 60
-                while period != 10:
-                    period -= 10
+                while period != self.period:
+                    period -= self.period
                     self.process_missed_block(block_num)
                 self.get_block_delegate(block_num)
             last_timestamp = timestamp
@@ -123,10 +125,11 @@ class DelegateWatch(object):
 
     def execute(self):
         while True:
-            info = self.bts_client.get_info()
-            height = int(info["blockchain_head_block_num"])
+            client_info = self.bts_client.get_info()
+            height = int(client_info["blockchain_head_block_num"])
             if height != self.height:
-                round_left = int(info["blockchain_blocks_left_in_round"])
+                round_left = int(
+                    client_info["blockchain_blocks_left_in_round"])
                 if round_left > self.round_left:
                     if self.round_left != 1:
                         round_left = 1
@@ -138,7 +141,7 @@ class DelegateWatch(object):
                 self.height = height
                 self.round_left = round_left
             now = time.time()
-            nexttime = int(now/10+1)*10 - now
+            nexttime = int(now/self.period+1)*self.period - now
             time.sleep(nexttime+1)
 
 if __name__ == '__main__':

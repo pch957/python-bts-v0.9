@@ -3,6 +3,7 @@
 import json
 import requests
 import logging
+import time
 
 from bts.misc import trim_float_precision
 from bts.misc import to_fixed_point
@@ -16,7 +17,13 @@ class BTS():
         self.block_timestamp = {}
         self.url = "http://%s:%s@%s:%s/rpc" % (user, password, host, str(port))
         self.log = logging.getLogger('bts')
+        self.init_chain_info()
+        self.client_info = self._get_info()
         # self.log.info("Initializing with URL:  " + self.url)
+
+    def init_chain_info(self):
+        self.chain_info = self.request(
+            "blockchain_get_info", []).json()["result"]
 
     def request(self, method, *args):
         payload = {
@@ -33,8 +40,18 @@ class BTS():
             json.dumps(payload)), headers=headers)
         return response
 
+    def _get_info(self):
+        client_info = self.request("get_info", []).json()["result"]
+        client_info["seconds"] = time.time()
+        return client_info
+
     def get_info(self):
-        return self.request("get_info", []).json()["result"]
+        seconds = time.time()
+        seconds_last = self.client_info["seconds"]
+        interval = float(self.chain_info["block_interval"])
+        if seconds - seconds_last >= interval*0.9:
+            self.client_info = self._get_info()
+        return self.client_info
 
     def get_asset_info(self, asset):
         asset = str(asset)
@@ -57,14 +74,14 @@ class BTS():
     def is_peg_asset(self, asset):
         return int(self.get_asset_info(asset)["issuer_id"]) == -2
 
-    def get_time_stamp(self, block):
+    def get_block_timestamp(self, block):
         if block not in self.block_timestamp:
             block_info = self.request(
                 "blockchain_get_block", [block]).json()["result"]
             self.block_timestamp[block] = block_info["timestamp"]
             if len(self.block_timestamp) >= 1000:
-                for _block in sorted(self.order_book.keys())[:500]:
-                    self.order_book.pop(_block)
+                for _block in sorted(self.block_timestamp.keys())[:500]:
+                    self.block_timestamp.pop(_block)
         return self.block_timestamp[block]
 
     def publish_feeds(self, delegate, feed_list):
@@ -140,7 +157,9 @@ class BTS():
         return self.request(
             "blockchain_list_blocks", [height, limit]).json()["result"]
 
-    def list_active_delegates(self, first=0, count=101):
+    def list_active_delegates(self, first=0, count=0):
+        if count == 0:
+            count = int(self.chain_info["delegate_num"])
         return self.request("blockchain_list_active_delegates",
                             [first, count]).json()["result"]
 
@@ -149,10 +168,10 @@ class BTS():
                             [height]).json()["result"]
 
     def is_chain_sync(self):
-        blockchain_info = self.get_info()
-        age = int(blockchain_info["blockchain_head_block_age"])
+        client_info = self.get_info()
+        age = int(client_info["blockchain_head_block_age"])
         participation = \
-            blockchain_info["blockchain_average_delegate_participation"]
+            client_info["blockchain_average_delegate_participation"]
         if participation is not None:
             participation = int(participation)
         else:
@@ -160,4 +179,4 @@ class BTS():
 
         if age > 15 or participation < 80:
             return None
-        return blockchain_info
+        return client_info

@@ -58,7 +58,8 @@ class BTSMarket():
             order_book_short.append([_price, _volume])
         return order_book_short
 
-    def get_cover(self, quote, base, raw_order_book, feed_price, timestamp):
+    def get_cover(self, quote, base, raw_order_book, feed_price):
+        timestamp = self.client.get_info()["blockchain_head_block_timestamp"]
         quote_precision = self.client.get_asset_precision(quote)
         base_precision = self.client.get_asset_precision(base)
 
@@ -87,7 +88,7 @@ class BTSMarket():
             order_book_cover.append([price_margin_call, volume_margin_call])
         return order_book_cover
 
-    def get_order_book(self, quote, base, timestamp=None):
+    def get_order_book(self, quote, base):
         raw_order_book = self.client.request(
             "blockchain_market_order_book", [quote, base, -1]).json()["result"]
         order_book = self.get_bid_ask(quote, base, raw_order_book)
@@ -98,8 +99,7 @@ class BTSMarket():
                 order_book["bids"].extend(
                     self.get_short(quote, base, feed_price))
                 order_book["asks"].extend(
-                    self.get_cover(quote, base, raw_order_book,
-                                   feed_price, timestamp))
+                    self.get_cover(quote, base, raw_order_book, feed_price))
 
         order_book["asks"] = sorted(order_book["asks"])
         order_book["bids"] = sorted(order_book["bids"], reverse=True)
@@ -185,7 +185,7 @@ class BTSMarket():
                     continue
                 rec["trx_id"] = _trx_id
                 rec["block"] = _block
-                rec["timestamp"] = self.client.get_time_stamp(_block)
+                rec["timestamp"] = self.client.get_block_timestamp(_block)
                 order_place_recs.append(rec)
         return order_place_recs
 
@@ -239,7 +239,7 @@ class BTSMarket():
             rec = self.get_order_deal(_trx[key_price], _trx[key_balance])
             if not rec:
                 continue
-            timestamp = self.client.get_time_stamp(height)
+            timestamp = self.client.get_block_timestamp(height)
             rec["timestamp"] = timestamp
             rec["type"] = trx_type
             rec["block"] = height

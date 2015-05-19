@@ -43,8 +43,8 @@ class PublishMarket(object):
         self.bts_client = BTS(config_bts["user"], config_bts["password"],
                               config_bts["host"], config_bts["port"])
         self.market = BTSMarket(self.bts_client)
-        chain_info = self.bts_client.get_info()
-        self.height = int(chain_info["blockchain_head_block_num"])
+        client_info = self.bts_client.get_info()
+        self.height = int(client_info["blockchain_head_block_num"])
 
     def myPublish(self, topic, event):
         if self.pusher:
@@ -80,7 +80,7 @@ class PublishMarket(object):
             self.myPublish(u'bts.orderbook.order', format_trx)
             print(format_trx)
 
-    def publish_order_book(self, time_stamp):
+    def publish_order_book(self):
         market_list = [
             ["BOTSCNY", "BTS"], ["CNY", "BTS"], ["USD", "BTS"],
             ["GOLD", "BTS"], ["BTC", "BTS"], ["BDR.AAPL", "CNY"],
@@ -88,7 +88,7 @@ class PublishMarket(object):
         for quote, base in market_list:
             prefix = get_prefix(quote, base)
             order_book = self.market.get_order_book(
-                quote, base, time_stamp)
+                quote, base)
             order_book["bids"] = order_book["bids"][:10]
             order_book["asks"] = order_book["asks"][:10]
             if (prefix not in self.order_book or
@@ -98,13 +98,13 @@ class PublishMarket(object):
                     u'bts.orderbook.%s' % prefix, order_book)
 
     def execute(self):
-        chain_info = self.bts_client.get_info()
-        height_now = int(chain_info["blockchain_head_block_num"])
+        client_info = self.bts_client.get_info()
+        height_now = int(client_info["blockchain_head_block_num"])
         if(self.height < height_now):
-            time_stamp = chain_info["blockchain_head_block_timestamp"]
+            time_stamp = client_info["blockchain_head_block_timestamp"]
             self.myPublish(u'bts.blockchain.info',
                            {"height": height_now, "time_stamp": time_stamp})
-            self.publish_order_book(time_stamp)
+            self.publish_order_book()
         while self.height < height_now:
             self.height += 1
             trxs = self.bts_client.get_block_transactions(
@@ -144,6 +144,8 @@ class Component(ApplicationSession):
         my_token = Component.task_token
         print("session attached")
         Component.publish_market.pusher = self
+        period = float(
+            Component.publish_market.bts_client.chain_info["block_interval"])
 
         while my_token == Component.task_token:
             try:
@@ -151,7 +153,7 @@ class Component(ApplicationSession):
             except Exception as e:
                 print(e)
             now = time.time()
-            nexttime = int(time.time()/10 + 1)*10 - now
+            nexttime = int(time.time()/period + 1)*period - now
             yield sleep(nexttime+1)
 
     def onLeave(self, details):
