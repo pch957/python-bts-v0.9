@@ -112,6 +112,20 @@ class DelegateTask(object):
             current_feed_price[asset] = self.client.get_feed_price(asset)
         return current_feed_price
 
+    def publish_rule_check2(self, median_price):
+        if time.time() - self.time_publish_feed > \
+                self.config_price_feed["max_update_hours"] * 60 * 60:
+            return True
+        change_min = self.config_price_feed["price_limit"]["change_min"]
+        for asset in median_price:
+            price_change = 100.0 * (
+                median_price[asset] - self.last_publish_price[asset]) \
+                / self.last_publish_price[asset]
+
+            if fabs(price_change) > change_min:
+                return True
+        return False
+
     def publish_rule_check(self, median_price, current_feed_price):
         # When attempting to write a market maker the slow movement of the feed
         # can be difficult.
@@ -203,7 +217,8 @@ class DelegateTask(object):
         bts_price_in_cny = self.fetch_bts_price()
         median_price = self.get_median_price(bts_price_in_cny)
         current_feed_price = self.get_feed_price()
-        if self.publish_rule_check(median_price, current_feed_price):
+        #if self.publish_rule_check(median_price, current_feed_price):
+        if self.publish_rule_check2(median_price):
             self.check_median_price(median_price, current_feed_price)
             self.publish_feed_price(median_price)
         self.display_price(median_price, current_feed_price)
