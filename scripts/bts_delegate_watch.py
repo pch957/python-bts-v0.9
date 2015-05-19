@@ -125,28 +125,28 @@ class DelegateWatch(object):
 
     def execute(self):
         while True:
-            client_info = self.bts_client.get_info()
-            height = int(client_info["blockchain_head_block_num"])
-            if height != self.height:
-                round_left = int(
-                    client_info["blockchain_blocks_left_in_round"])
-                if round_left > self.round_left:
-                    if self.round_left != 1:
-                        round_left = 1
-                        height = self.height+self.round_left-1
-                    else:
-                        self.active_delegates = \
-                            self.bts_client.list_active_delegates()
-                self.check_missed_block(height)
-                self.height = height
-                self.round_left = round_left
+            try:
+                client_info = self.bts_client.get_info()
+                height = int(client_info["blockchain_head_block_num"])
+                if height != self.height:
+                    round_left = int(
+                        client_info["blockchain_blocks_left_in_round"])
+                    if round_left > self.round_left:
+                        if self.round_left != 1:
+                            round_left = 1
+                            height = self.height+self.round_left-1
+                        else:
+                            self.active_delegates = \
+                                self.bts_client.list_active_delegates()
+                    self.check_missed_block(height)
+                    self.height = height
+                    self.round_left = round_left
+            except Exception as e:
+                self.logger.exception(e)
             now = time.time()
             nexttime = int(now/self.period+1)*self.period - now
             time.sleep(nexttime+1)
 
 if __name__ == '__main__':
     delegate_watch = DelegateWatch()
-    try:
-        delegate_watch.execute()
-    except Exception as e:
-        delegate_watch.logger.exception(e)
+    delegate_watch.execute()

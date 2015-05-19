@@ -86,5 +86,8 @@ if __name__ == '__main__':
     get_market_trx = GetMarketTrx()
     period = float(get_market_trx .client.chain_info["block_interval"])
     while True:
-        get_market_trx.excute()
+        try:
+            get_market_trx.excute()
+        except Exception as e:
+            print(e)
         time.sleep(period)

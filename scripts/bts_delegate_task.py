@@ -266,18 +266,18 @@ class DelegateTask(object):
     def excute(self):
         run_timer = 0
         while True:
-            if self.config_price_feed["run_timer"]and \
-                    run_timer % self.config_price_feed["run_timer"] == 0:
-                self.task_feed_price()
-            if self.config_withdraw_pay["run_timer"]and \
-                    run_timer % self.config_withdraw_pay["run_timer"] == 0:
-                self.task_withdraw_pay()
+            try:
+                if self.config_price_feed["run_timer"]and \
+                        run_timer % self.config_price_feed["run_timer"] == 0:
+                    self.task_feed_price()
+                if self.config_withdraw_pay["run_timer"]and \
+                        run_timer % self.config_withdraw_pay["run_timer"] == 0:
+                    self.task_withdraw_pay()
+            except Exception as e:
+                self.logger.exception(e)
             run_timer += 1
             time.sleep(int(self.config["base_timer"]))
 
 if __name__ == '__main__':
     delegate_task = DelegateTask()
-    try:
-        delegate_task.excute()
-    except Exception as e:
-        delegate_task.logger.exception(e)
+    delegate_task.excute()
