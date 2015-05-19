@@ -6,13 +6,13 @@ Information describing the project.
 
 # The package name, which is also the "UNIX name" for the project.
 package = 'bts'
-project = "python api for Bitshares"
+project = "python api for BitShares"
 project_no_spaces = project.replace(' ', '')
-version = '0.5.6'
-description = 'It does cool things'
+version = '0.5.7'
+description = 'api for BitShares'
 authors = ['Alt']
 authors_string = ', '.join(authors)
 emails = ['pch957@163.com']
 license = 'MIT'
 copyright = '2015 ' + authors_string
-url = 'https://bitsharestalk.org/'
+url = 'https://github.com/pch957/python-bts'
