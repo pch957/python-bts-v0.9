@@ -232,6 +232,7 @@ setup_dict = dict(
     maintainer=metadata.authors[0],
     maintainer_email=metadata.emails[0],
     url=metadata.url,
+    include_package_data=True,
     description=metadata.description,
     long_description=read('README.rst'),
     # Find a list of classifiers here:
@@ -266,7 +267,7 @@ setup_dict = dict(
     zip_safe=False,  # don't use eggs
     scripts=["scripts/bts_delegate_task.py", "scripts/bts_delegate_watch.py",
              "scripts/bts_get_market_trx.py", "scripts/bts_publish_market.py"],
-    data_files=[("/usr/share/python-bts/",
+    data_files=[("config",
                  ["config/bts_client.json", "config/delegate_task.json",
                   "config/delegate_watch.json"])]
 )

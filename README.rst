@@ -19,7 +19,7 @@ Quick Start
 
 #. configuration::
 
-       $ cp -a /usr/share/python-bts ~/.python-bts
+       $ cp -a config ~/.python-bts
        $ vim -p ~/.python-bts/*.json
 
 #. Run::
