@@ -9,7 +9,7 @@ from bts.misc import to_fixed_point
 class BTSMarket():
     def __init__(self, client):
         self.client = client
-        self.order_owner = [0, 0]
+        self.order_owner = [[0, 0]]
 
     def get_bid_ask(self, quote, base, raw_order_book):
         quote_precision = self.client.get_asset_precision(quote)
