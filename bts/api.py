@@ -122,23 +122,33 @@ class BTS():
         else:
             return None
 
-    def get_balance(self, account="", asset="ALL"):
-        balance = {}
+    def _get_balance(self, account=""):
         response = self.request("wallet_account_balance", [account])
         if len(response.json()["result"]) < 1:
+            return None
+        return response.json()["result"]
+
+    def get_balance(self, account="", asset="ALL"):
+        balance_list = self._get_balance(account)
+        if balance_list is None:
             if asset == "ALL":
                 return None
             else:
                 return 0.0
-        asset_array = response.json()["result"][0][1]
-        for item in asset_array:
-            _asset = self.get_asset_symbol(item[0])
-            balance[_asset] = float(item[1]) / self.get_asset_precision(_asset)
+        balance = {}
+        for account_list in balance_list:
+            _account = account_list[0]
+            _balance = {}
+            for item in account_list[1]:
+                _asset = self.get_asset_symbol(item[0])
+                _balance[_asset] = \
+                    float(item[1]) / self.get_asset_precision(_asset)
+            balance[_account] = _balance
 
         if asset == "ALL":
             return balance
         elif asset in balance:
-            return balance[asset]
+            return balance[account][asset]
         else:
             return 0.0
 
