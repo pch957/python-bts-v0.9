@@ -50,7 +50,8 @@ class BTSMarket():
                 else:
                     _price = float(price_limit["ratio"])\
                         * base_precision / quote_precision
-                    _volume = volume * feed_price / _price
+                    #_volume = volume * feed_price / _price
+                    _volume = volume  # changed since version 0.9.3
                     order_book_short.append([_price, _volume])
         if volume_at_feed_price != 0:
             _volume = volume_at_feed_price
