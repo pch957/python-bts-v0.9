@@ -146,6 +146,8 @@ class BTS():
             balance[_account] = _balance
 
         if asset == "ALL":
+            if account:
+                return balance[account]
             return balance
         elif asset in balance:
             return balance[account][asset]
