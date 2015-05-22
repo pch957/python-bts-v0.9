@@ -73,6 +73,14 @@ class TestMain(object):
         assert feed_price_usd_per_cny == feed_price_usd / feed_price_cny
         assert not self.client.get_feed_price("BTSBOTS")
 
+    def test_list_accounts(self):
+        accounts = self.client._list_accounts()
+        pprint("======= test__list_accounts =========", self.logfile)
+        pprint(accounts, self.logfile)
+        accounts = self.client.list_accounts()
+        pprint("======= test_list_accounts =========", self.logfile)
+        pprint(accounts, self.logfile)
+
     def test_get_balance(self):
         balance = self.client.get_balance()
         pprint("======= test_get_balance =========", self.logfile)

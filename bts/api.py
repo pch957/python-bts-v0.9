@@ -152,6 +152,17 @@ class BTS():
         else:
             return 0.0
 
+    def _list_accounts(self):
+        return self.request(
+            "wallet_list_accounts", []).json()["result"]
+
+    def list_accounts(self):
+        accounts = []
+        account_info = self._list_accounts()
+        for account in account_info:
+            accounts.append(account["name"])
+        return accounts
+
     def get_account_info(self, account):
         return self.request(
             "blockchain_get_account", [account]).json()["result"]
