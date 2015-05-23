@@ -190,6 +190,46 @@ class BTS():
         return self.request("blockchain_get_block_transactions",
                             [height]).json()["result"]
 
+    def get_transaction_history(self, limit=0, start=0, end=-1):
+        trxs = []
+        trx_all = self.request("wallet_account_transaction_history",
+                               ["", "", limit, start, end]).json()["result"]
+        for _trx in trx_all:
+            if _trx['is_market'] or _trx['is_virtual']:
+                continue
+            trx = {}
+            trx["fee_asset"] = \
+                self.get_asset_symbol(_trx["fee"]["asset_id"])
+            trx["fee_amount"] = float(_trx["fee"]["amount"]) / \
+                self.get_asset_precision(_trx["fee"]["asset_id"])
+            trx['block_num'] = _trx['block_num']
+            entries = _trx['ledger_entries'][0]
+            trx["from"] = entries["from_account"]
+            trx["to"] = entries["to_account"]
+            trx["memo"] = entries["memo"]
+            trx["asset"] = \
+                self.get_asset_symbol(entries["amount"]["asset_id"])
+            trx["amount"] = float(entries["amount"]["amount"]) / \
+                self.get_asset_precision(entries["amount"]["asset_id"])
+            trx["timestamp"] = _trx['timestamp']
+            trx["trx_id"] = _trx['trx_id'][:8]
+            trxs.append(trx)
+        return trxs
+
+    def format_transaction_history(self, account, trxs):
+        format_trxs = []
+        for _trx in trxs:
+            if _trx["from"] == account:
+                _trx["type"] = "send"
+                _trx["account"] = _trx["to"]
+            elif _trx["to"] == account:
+                _trx["type"] = "receive"
+                _trx["account"] = _trx["from"]
+            else:
+                continue
+            format_trxs.append(_trx)
+        return format_trxs
+
     def is_chain_sync(self):
         client_info = self.get_info()
         age = int(client_info["blockchain_head_block_age"])

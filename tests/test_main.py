@@ -86,6 +86,11 @@ class TestMain(object):
         pprint("======= test_get_balance =========", self.logfile)
         pprint(balance, self.logfile)
 
+    def test_transaction_history(self):
+        trx_history = self.client.get_transaction_history(limit=-100)
+        pprint("======= test_transaction_history =========", self.logfile)
+        pprint(trx_history, self.logfile)
+
     def test_order_book(self):
         order_book = self.bts_market.get_order_book("CNY", "BTS")
         pprint("======= test_order_book =========", self.logfile)
