@@ -218,7 +218,7 @@ class BTS():
 
     def format_transaction_history(self, account, trxs):
         format_trxs = []
-        for _trx in trxs:
+        for _trx in list(trxs):
             if _trx["from"] == account:
                 _trx["type"] = "send"
                 _trx["account"] = _trx["to"]
