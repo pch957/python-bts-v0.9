@@ -218,17 +218,18 @@ class BTS():
 
     def format_transaction_history(self, account, trxs):
         format_trxs = []
-        for trx in list(trxs):
-            _trx = trx.copy()
+        for _trx in trxs:
             if _trx["from"] == account:
-                _trx["type"] = "send"
-                _trx["account"] = _trx["to"]
+                trx = _trx.copy()
+                trx["type"] = "send"
+                trx["account"] = _trx["to"]
             elif _trx["to"] == account:
-                _trx["type"] = "receive"
-                _trx["account"] = _trx["from"]
+                trx = _trx.copy()
+                trx["type"] = "receive"
+                trx["account"] = _trx["from"]
             else:
                 continue
-            format_trxs.append(_trx)
+            format_trxs.append(trx)
         return format_trxs
 
     def is_chain_sync(self):
