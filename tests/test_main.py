@@ -188,3 +188,9 @@ class TestMain(object):
         assert order_book is not None
         pprint("======= test_my_order_book =========", self.logfile)
         pprint(order_book, self.logfile)
+
+    def test_get_address_balances(self):
+        balances = self.client.get_address_balances(
+            "BTSJT2yrAEcPSYjX3yLmRgFaxA5zDsUHFBDe")
+        pprint("======= test_address_bbalances =========", self.logfile)
+        pprint(balances, self.logfile)

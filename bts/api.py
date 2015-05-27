@@ -245,3 +245,19 @@ class BTS():
         if age > 15 or participation < 80:
             return None
         return client_info
+
+    def get_address_balances(self, address, since="1970-1-1T00:00:01"):
+        balance_info = self.request("blockchain_list_address_balances",
+                                    [address, since]).json()["result"]
+        balances = {}
+        for _id, _balance in balance_info:
+            amount = float(_balance["balance"])
+            if amount == 0:
+                continue
+            asset = self.get_asset_symbol(_balance["condition"]["asset_id"])
+            amount = amount / self.get_asset_precision(asset)
+            if asset in balances:
+                balances[asset] += amount
+            else:
+                balances[asset] = amount
+        return balances
