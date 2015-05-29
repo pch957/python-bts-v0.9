@@ -246,9 +246,13 @@ class BTS():
             return None
         return client_info
 
+    def _get_address_balances(self, address, since="1970-1-1T00:00:01"):
+        return self.request("blockchain_list_address_balances",
+                            [address, since]).json()["result"]
+
     def get_address_balances(self, address, since="1970-1-1T00:00:01"):
-        balance_info = self.request("blockchain_list_address_balances",
-                                    [address, since]).json()["result"]
+        balance_info = self._get_address_balances(
+            address, since)
         balances = {}
         for _id, _balance in balance_info:
             amount = float(_balance["balance"])
