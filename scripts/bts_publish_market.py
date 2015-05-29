@@ -110,7 +110,7 @@ class PublishMarket(object):
            self.order_book_brief[prefix] != order_book_brief):
             self.order_book_brief[prefix] = order_book_brief
             self.myPublish(
-                u'bts.orderbook.%s' % prefix, order_book_brief)
+                u'bts.orderbook.%s.brief' % prefix, order_book_brief)
 
     def execute(self):
         client_info = self.bts_client.get_info()
