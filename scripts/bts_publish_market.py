@@ -103,9 +103,9 @@ class PublishMarket(object):
         prefix = get_prefix(quote, base)
         order_book_brief = {"ask1": None, "bid1": None}
         if order_book["bids"]:
-            order_book_brief["bid1:"] = order_book["bids"][0][0]
+            order_book_brief["bid1"] = order_book["bids"][0][0]
         if order_book["asks"]:
-            order_book_brief["ask1:"] = order_book["asks"][0][0]
+            order_book_brief["ask1"] = order_book["asks"][0][0]
         if (prefix not in self.order_book_brief or
            self.order_book_brief[prefix] != order_book_brief):
             self.order_book_brief[prefix] = order_book_brief
