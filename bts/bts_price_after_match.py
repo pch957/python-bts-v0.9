@@ -21,6 +21,9 @@ class BTSPriceAfterMatch(object):
         self.order_types = ["bids", "asks"]
         self.need_cover_order = True
 
+    def set_orderbook_timeout(self, timeout):
+        self.timeout = timeout
+
     def get_rate_from_yahoo(self):
         asset_list_all = ["KRW", "BTC", "SILVER", "GOLD", "TRY",
                           "SGD", "HKD", "RUB", "SEK", "NZD", "CNY",
