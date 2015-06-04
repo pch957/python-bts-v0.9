@@ -8,7 +8,7 @@ Information describing the project.
 package = 'bts'
 project = "python api for BitShares"
 project_no_spaces = project.replace(' ', '')
-version = '0.5.11'
+version = '0.5.12'
 description = 'api for BitShares'
 authors = ['Alt']
 authors_string = ', '.join(authors)
