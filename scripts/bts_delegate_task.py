@@ -61,7 +61,8 @@ class DelegateTask(object):
         peg_asset_list = ["KRW", "BTC", "SILVER", "GOLD", "TRY",
                           "SGD", "HKD", "RUB", "SEK", "NZD", "CNY",
                           "MXN", "CAD", "CHF", "AUD", "GBP", "JPY",
-                          "EUR", "USD"]
+                          "EUR", "USD", "SHENZHEN", "NASDAQC", "NIKKEI"
+                          "HANGSENG"]
         self.price_queue = {}
         for asset in peg_asset_list:
             self.price_queue[asset] = []

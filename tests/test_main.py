@@ -102,11 +102,7 @@ class TestMain(object):
 
     def test_exchanges_yahoo(self):
         exchanges = Exchanges()
-        asset_list_all = ["KRW", "BTC", "SILVER", "GOLD", "TRY",
-                          "SGD", "HKD", "RUB", "SEK", "NZD", "CNY",
-                          "MXN", "CAD", "CHF", "AUD", "GBP", "JPY",
-                          "EUR", "USD", "BDR.AAPL"]
-        rate_cny = exchanges.fetch_from_yahoo(asset_list_all)
+        rate_cny = exchanges.fetch_from_yahoo()
         pprint("======= test_exchanges_yahoo =========", self.logfile)
         pprint(rate_cny, self.logfile)
         assert rate_cny["USD"] > 0

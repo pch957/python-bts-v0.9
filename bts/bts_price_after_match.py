@@ -25,11 +25,7 @@ class BTSPriceAfterMatch(object):
         self.timeout = timeout
 
     def get_rate_from_yahoo(self):
-        asset_list_all = ["KRW", "BTC", "SILVER", "GOLD", "TRY",
-                          "SGD", "HKD", "RUB", "SEK", "NZD", "CNY",
-                          "MXN", "CAD", "CHF", "AUD", "GBP", "JPY",
-                          "EUR", "USD", "BDR.AAPL"]
-        _rate_cny = self.exchanges.fetch_from_yahoo(asset_list_all)
+        _rate_cny = self.exchanges.fetch_from_yahoo()
         if _rate_cny:
             self.timestamp_rate_cny = self.timestamp
             self.rate_cny = _rate_cny

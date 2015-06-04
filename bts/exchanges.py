@@ -2,10 +2,10 @@
 import requests
 import json
 import logging
+from yahoo import Yahoo
 
 
 class Exchanges():
-
     # ------------------------------------------------------------------------
     # Init
     # ------------------------------------------------------------------------
@@ -14,6 +14,7 @@ class Exchanges():
                        'User-Agent': 'Mozilla/5.0 Gecko/20100101 Firefox/22.0'}
         self.log = logging.getLogger('bts')
         self.order_types = ["bids", "asks"]
+        self.yahoo = Yahoo()
 
     # ------------------------------------------------------------------------
     # Fetch data
@@ -73,42 +74,5 @@ class Exchanges():
             self.log.error("Error fetching results from yunbi!")
             return
 
-    def get_yahoo_param(self, assets):
-        params_s = ""
-        for asset in assets:
-            if asset == "GOLD":
-                asset_yahoo = "XAU"
-                params_s = params_s + asset_yahoo + "CNY=X,"
-            elif asset == "SILVER":
-                asset_yahoo = "XAG"
-                params_s = params_s + asset_yahoo + "CNY=X,"
-            elif asset == "BDR.AAPL":
-                params_s = params_s + "AAPL,"
-            elif asset == "OIL" or asset == "GAS" or asset == "DIESEL":
-                asset_yahoo = "TODO"
-            else:
-                asset_yahoo = asset
-                params_s = params_s + asset_yahoo + "CNY=X,"
-        params = {'s': params_s, 'f': 'l1', 'e': '.csv'}
-        return params
-
-    def fetch_from_yahoo(self, assets):
-        rate_cny = {}
-        url = "http://download.finance.yahoo.com/d/quotes.csv"
-        try:
-            params = self.get_yahoo_param(assets)
-            response = requests.get(
-                url=url, headers=self.header, params=params, timeout=3)
-
-            pos = posnext = 0
-            for asset in assets:
-                posnext = response.text.find("\n", pos)
-                rate_cny[asset] = float(response.text[pos:posnext])
-                pos = posnext + 1
-            if "BDR.AAPL" in rate_cny:
-                rate_cny["BDR.AAPL"] = rate_cny[
-                    "BDR.AAPL"] * rate_cny["USD"] / 1000
-            return(rate_cny)
-        except:
-            self.log.error("Error fetching results from yahoo!")
-            return
+    def fetch_from_yahoo(self, assets=None):
+        return(self.yahoo.fetch_price())
