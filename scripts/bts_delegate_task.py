@@ -61,8 +61,8 @@ class DelegateTask(object):
         peg_asset_list = ["KRW", "BTC", "SILVER", "GOLD", "TRY",
                           "SGD", "HKD", "RUB", "SEK", "NZD", "CNY",
                           "MXN", "CAD", "CHF", "AUD", "GBP", "JPY",
-                          "EUR", "USD", "SHENZHEN", "NASDAQC", "NIKKEI"
-                          "HANGSENG"]
+                          "EUR", "USD", "SHENZHEN", "NASDAQC", "NIKKEI",
+                          "HANGSENG", "SHANGHAI"]
         self.price_queue = {}
         for asset in peg_asset_list:
             self.price_queue[asset] = []
@@ -99,7 +99,8 @@ class DelegateTask(object):
     def get_median_price(self, bts_price_in_cny):
         median_price = {}
         for asset in self.price_queue:
-            if asset not in self.bts_price.rate_cny:
+            if asset not in self.bts_price.rate_cny or \
+                    self.bts_price.rate_cny[asset] is None:
                 continue
             self.price_queue[asset].append(bts_price_in_cny
                                            / self.bts_price.rate_cny[asset])
@@ -160,7 +161,8 @@ class DelegateTask(object):
             if fabs(price_change) < change_ignore:
                 continue
 
-            if median_price[asset] < current_feed_price[asset] / \
+            if current_feed_price[asset] and \
+                    median_price[asset] < current_feed_price[asset] / \
                     self.discount and self.last_publish_price[asset] > \
                     current_feed_price[asset] / self.discount:
                 #self.logger.info(
@@ -178,6 +180,8 @@ class DelegateTask(object):
 
     def check_median_price(self, median_price, current_feed_price):
         for asset in median_price:
+            if current_feed_price[asset] is None:
+                continue
             price_change = 100.0 * (
                 median_price[asset] - current_feed_price[asset]) \
                 / current_feed_price[asset]
@@ -206,15 +210,17 @@ class DelegateTask(object):
         print("   ASSET  RATE(CNY)    CURRENT_FEED   LAST_PUBLISH")
         print("-----------------------------------------------------")
         for asset in sorted(median_price):
-            _rate_cny = self.bts_price.rate_cny[asset]
-            _current_feed_price = current_feed_price[asset]
-            _last_publish_price = self.last_publish_price[asset]
-
+            _rate_cny = "%.3f" % self.bts_price.rate_cny[asset]
+            if current_feed_price[asset] is None:
+                _current_feed_price = None
+            else:
+                _current_feed_price = "%.4g" % current_feed_price[asset]
+            _last_publish_price = "%.4g" % self.last_publish_price[asset]
             print(
                 '{: >8}'.format("%s" % asset), '{: >10}'.
-                format('%.3f' % _rate_cny), '{: >15}'.
-                format("%.4g" % _current_feed_price), '{: >15}'.
-                format('%.4g' % _last_publish_price))
+                format('%s' % _rate_cny), '{: >15}'.
+                format("%s" % _current_feed_price), '{: >15}'.
+                format('%s' % _last_publish_price))
         print("====================================================")
 
     def task_feed_price(self):

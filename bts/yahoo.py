@@ -37,8 +37,8 @@ class Yahoo(object):
         ### todo:"OIL", GAS", "DIESEL"
         self.param_s["SHENZHEN"] = '399106.SZ'
         self.quote["SHENZHEN"] = "CNY"
-        #self.param_s["SHANGHAI"] = '000001.SS'
-        #self.quote["SHANGHAI"] = "CNY"
+        self.param_s["SHANGHAI"] = '000001.SS'
+        self.quote["SHANGHAI"] = "CNY"
         self.param_s["NASDAQC"] = '^IXIC'
         self.quote["NASDAQC"] = "USD"
         self.param_s["NIKKEI"] = '^N225'
@@ -69,9 +69,7 @@ class Yahoo(object):
 
             price = dict(zip(assets, response.text.split()))
             for asset in assets:
-                if not is_float_try(price[asset]):
-                    rate_cny[asset] = None
-                else:
+                if is_float_try(price[asset]):
                     scale = 1.0
                     if asset in self.scale:
                         scale = self.scale[asset]

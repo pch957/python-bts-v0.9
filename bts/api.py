@@ -109,7 +109,7 @@ class BTS():
         else:
             feeds = self.request(
                 "blockchain_get_feeds_for_asset", [quote]).json()["result"]
-            if feeds[-1]["delegate_name"] == "MARKET":
+            if feeds and feeds[-1]["delegate_name"] == "MARKET":
                 return float(feeds[-1]["median_price"])
             else:
                 return None
