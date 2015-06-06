@@ -89,7 +89,7 @@ class PublishMarket(object):
         for quote, base in market_list:
             prefix = get_prefix(quote, base)
             order_book = self.market.get_order_book(
-                quote, base)
+                quote, base, cover=True)
             order_book["bids"] = order_book["bids"][:10]
             order_book["asks"] = order_book["asks"][:10]
             if (prefix not in self.order_book or
