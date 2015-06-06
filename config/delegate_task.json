@@ -16,6 +16,8 @@
             "run_timer": 6,
             "common": "update the feed price at least 23.5 hours a time",
             "max_update_hours": 23.5,
+            "common": "change to 1 if you want to publish even it's a stand by delegate",
+            "allow_stand_by": 0,
             "price_limit": {
                 "common": "only update price feed when the change rate is between 0.5% ~ 50%",
                 "change_ignore": 0.2,

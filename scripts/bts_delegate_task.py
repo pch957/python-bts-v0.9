@@ -200,7 +200,10 @@ class DelegateTask(object):
         self.logger.info("publish price %s", publish_feeds)
         active_delegates = self.client.list_active_delegates()
         for delegate in self.config["delegate_list"]:
-            if any(d['name'] == delegate for d in active_delegates):
+            if "allow_stand_by" in self.config["price_feed"] and \
+                    self.config["price_feed"]["allow_stand_by"] == 1:
+                self.client.publish_feeds(delegate, publish_feeds)
+            elif any(d['name'] == delegate for d in active_delegates):
                 self.client.publish_feeds(delegate, publish_feeds)
 
     def display_price(self, median_price, current_feed_price):
