@@ -15,6 +15,7 @@ import smtplib
 class DelegateWatch(object):
 
     def __init__(self):
+        self.confirm = 2
         self.load_config()
         self.init_bts()
         self.setup_log()
@@ -127,10 +128,12 @@ class DelegateWatch(object):
         while True:
             try:
                 client_info = self.bts_client.get_info()
-                height = int(client_info["blockchain_head_block_num"])
-                if height != self.height:
-                    round_left = int(
-                        client_info["blockchain_blocks_left_in_round"])
+                height = int(
+                    client_info["blockchain_head_block_num"]) - self.confirm
+                if height > self.height:
+                    round_left = (int(
+                        client_info["blockchain_blocks_left_in_round"]
+                    ) + self.confirm - 1) % self.delegate_num + 1
                     if round_left > self.round_left:
                         if self.round_left != 1:
                             round_left = 1
