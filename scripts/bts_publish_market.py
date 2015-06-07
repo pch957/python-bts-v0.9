@@ -33,12 +33,19 @@ class PublishMarket(object):
         self.pusher = None
         self.order_book = {}
         self.order_book_brief = {}
+        self.load_config()
         self.init_market()
+
+    def load_config(self):
+        config_file = os.getenv("HOME")+"/.python-bts/delegate_task.json"
+        fd_config = open(config_file)
+        self.config = json.load(fd_config)
+        fd_config.close()
 
     def init_market(self):
         config_file = os.getenv("HOME") + "/.python-bts/bts_client.json"
         fd_config = open(config_file)
-        config_bts = json.load(fd_config)["client_default"]
+        config_bts = json.load(fd_config)[self.config["bts_client"]]
         fd_config.close()
 
         self.bts_client = BTS(config_bts["user"], config_bts["password"],
@@ -82,10 +89,7 @@ class PublishMarket(object):
             print(format_trx)
 
     def publish_order_book(self):
-        market_list = [
-            ["BOTSCNY", "BTS"], ["CNY", "BTS"], ["USD", "BTS"],
-            ["GOLD", "BTS"], ["BTC", "BTS"], ["BDR.AAPL", "CNY"],
-            ["NOTE", "BTS"]]
+        market_list = self.config["market_list"]
         for quote, base in market_list:
             prefix = get_prefix(quote, base)
             order_book = self.market.get_order_book(

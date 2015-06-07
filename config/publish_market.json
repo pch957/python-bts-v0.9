@@ -1,0 +1,13 @@
+{
+    "bts_client": "client_default",
+    "market_list": [
+        ["CNY", "BTS"],
+        ["USD", "BTS"],
+        ["EUR", "BTS"],
+        ["GOLD", "BTS"],
+        ["SILVER", "BTS"],
+        ["BTC", "BTS"],
+        ["BOTSCNY", "BTS"],
+        ["BDR.AAPL", "CNY"]
+    ]
+}
