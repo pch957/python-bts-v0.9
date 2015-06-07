@@ -37,7 +37,7 @@ class PublishMarket(object):
         self.init_market()
 
     def load_config(self):
-        config_file = os.getenv("HOME")+"/.python-bts/delegate_task.json"
+        config_file = os.getenv("HOME")+"/.python-bts/publish_market.json"
         fd_config = open(config_file)
         self.config = json.load(fd_config)
         fd_config.close()
