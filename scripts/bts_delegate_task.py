@@ -96,6 +96,21 @@ class DelegateTask(object):
                          real_price, volume)
         return real_price
 
+    ###### these MPA's precision is 100, it's too small,
+    ###### have to change the price
+    ###### but we should fixed these at BTS2.0
+    def patch_nasdaqc(self, median_price):
+        if "SHENZHEN" in median_price:
+            median_price["SHENZHEN"] /= median_price["CNY"]
+        if "SHANGHAI" in median_price:
+            median_price["SHANGHAI"] /= median_price["CNY"]
+        if "NASDAQC" in median_price:
+            median_price["NASDAQC"] /= median_price["USD"]
+        if "NIKKEI" in median_price:
+            median_price["NIKKEI"] /= median_price["JPY"]
+        if "HANGSENG" in median_price:
+            median_price["HANGSENG"] /= median_price["HKD"]
+
     def get_median_price(self, bts_price_in_cny):
         median_price = {}
         for asset in self.price_queue:
@@ -109,6 +124,7 @@ class DelegateTask(object):
                 self.price_queue[asset].pop(0)
             median_price[asset] = sorted(
                 self.price_queue[asset])[int(len(self.price_queue[asset]) / 2)]
+        self.patch_nasdaqc(median_price)
         return median_price
 
     def get_feed_price(self):
@@ -179,7 +195,7 @@ class DelegateTask(object):
         return False
 
     def check_median_price(self, median_price, current_feed_price):
-        for asset in median_price:
+        for asset in median_price.keys():
             if current_feed_price[asset] is None:
                 continue
             price_change = 100.0 * (
