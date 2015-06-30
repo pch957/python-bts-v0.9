@@ -139,6 +139,8 @@ class DelegateTask(object):
             return True
         change_min = self.config_price_feed["price_limit"]["change_min"]
         for asset in median_price:
+            if asset not in self.last_publish_price:
+                continue
             price_change = 100.0 * (
                 median_price[asset] - self.last_publish_price[asset]) \
                 / self.last_publish_price[asset]
