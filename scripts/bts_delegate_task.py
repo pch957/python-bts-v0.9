@@ -136,6 +136,7 @@ class DelegateTask(object):
     def publish_rule_check2(self, median_price):
         if time.time() - self.time_publish_feed > \
                 self.config_price_feed["max_update_hours"] * 60 * 60:
+            #self.logger.info("publish 1")
             return True
         change_min = self.config_price_feed["price_limit"]["change_min"]
         for asset in median_price:
@@ -146,6 +147,7 @@ class DelegateTask(object):
                 / self.last_publish_price[asset]
 
             if fabs(price_change) > change_min:
+                #self.logger.info("publish 2 %s %d %d"%(asset, median_price[asset], self.last_publish_price[asset]))
                 return True
         return False
 
@@ -231,6 +233,8 @@ class DelegateTask(object):
         print("   ASSET  RATE(CNY)    CURRENT_FEED   LAST_PUBLISH")
         print("-----------------------------------------------------")
         for asset in sorted(median_price):
+            if asset not in self.last_publish_price:
+                continue
             _rate_cny = "%.3f" % self.bts_price.rate_cny[asset]
             if current_feed_price[asset] is None:
                 _current_feed_price = None
