@@ -149,7 +149,7 @@ class BTS():
             if account:
                 return balance[account]
             return balance
-        elif asset in balance:
+        elif asset in balance[account]:
             return balance[account][asset]
         else:
             return 0.0
