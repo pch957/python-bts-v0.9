@@ -92,8 +92,12 @@ class DelegateTask(object):
         # calculate real price
         volume, volume_sum, real_price = self.bts_price.get_real_price(
             spread=self.config_price_feed["price_limit"]["spread"])
+        valid_depth = self.bts_price.get_valid_depth(
+            price=real_price,
+            spread=self.config_price_feed["price_limit"]["spread"])
         self.logger.info("fetch price is %.5f CNY/BTS, volume is %.3f",
                          real_price, volume)
+        self.logger.info("efficent depth : %s" % valid_depth)
         return real_price
 
     ###### these MPA's precision is 100, it's too small,
