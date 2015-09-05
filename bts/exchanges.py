@@ -2,7 +2,7 @@
 import requests
 import json
 import logging
-from yahoo import Yahoo
+from bts.yahoo import Yahoo
 
 
 class Exchanges():
@@ -80,11 +80,9 @@ class Exchanges():
             base = base.upper()
             url = "http://poloniex.com/public?command=\
 returnOrderBook&currencyPair=%s_%s" % (quote, base)
-            print(url)
 
             result = requests.get(
                 url=url, headers=self.header, timeout=3).json()
-            print(result)
             for order_type in self.order_types:
                 for order in result[order_type]:
                     order[0] = float(order[0])
