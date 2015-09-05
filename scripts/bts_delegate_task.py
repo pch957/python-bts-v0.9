@@ -147,7 +147,6 @@ class DelegateTask(object):
                 / self.last_publish_price[asset]
 
             if fabs(price_change) > change_min:
-                #self.logger.info("publish 2 %s %d %d"%(asset, median_price[asset], self.last_publish_price[asset]))
                 return True
         return False
 

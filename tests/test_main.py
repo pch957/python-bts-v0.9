@@ -114,6 +114,13 @@ class TestMain(object):
         pprint(order_book, self.logfile)
         assert len(order_book["bids"]) > 0
 
+    def test_exchanges_poloniex(self):
+        exchanges = Exchanges()
+        order_book = exchanges.fetch_from_poloniex()
+        pprint("======= test_exchanges_poloniex =========", self.logfile)
+        pprint(order_book, self.logfile)
+        assert len(order_book["bids"]) > 0
+
     def test_exchanges_btc38(self):
         exchanges = Exchanges()
         order_book = exchanges.fetch_from_btc38()

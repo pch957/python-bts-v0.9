@@ -33,6 +33,7 @@
                 "common": "weight depenth on (depth * scale)",
                 "wallet_usd": 0.001,
                 "wallet_cny": 1,
+                "poloniex_btc": 1,
                 "yunbi_cny": 1,
                 "btc38_cny": 1,
                 "btc38_btc": 1,

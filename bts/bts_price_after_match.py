@@ -56,6 +56,11 @@ class BTSPriceAfterMatch(object):
             self.order_book["wallet_usd"]["timestamp"] = self.timestamp
 
     def get_order_book_from_exchanges(self):
+        _order_book = self.exchanges.fetch_from_poloniex("btc", "bts")
+        if _order_book:
+            self.change_order_to_cny(_order_book, "BTC")
+            self.order_book["poloniex_btc"] = _order_book
+            self.order_book["poloniex_btc"]["timestamp"] = self.timestamp
         _order_book = self.exchanges.fetch_from_btc38()
         if _order_book:
             self.order_book["btc38_cny"] = _order_book

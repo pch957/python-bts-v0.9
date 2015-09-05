@@ -74,5 +74,30 @@ class Exchanges():
             self.log.error("Error fetching results from yunbi!")
             return
 
+    def fetch_from_poloniex(self, quote="btc", base="bts"):
+        try:
+            quote = quote.upper()
+            base = base.upper()
+            url = "http://poloniex.com/public?command=\
+returnOrderBook&currencyPair=%s_%s" % (quote, base)
+            print(url)
+
+            result = requests.get(
+                url=url, headers=self.header, timeout=3).json()
+            print(result)
+            for order_type in self.order_types:
+                for order in result[order_type]:
+                    order[0] = float(order[0])
+                    order[1] = float(order[1])
+            order_book_ask = sorted(result["asks"])
+            order_book_bid = sorted(result["bids"], reverse=True)
+            for bid_order in result["bids"]:
+                order_book_bid.append(
+                    [float(bid_order[0]), float(bid_order[1])])
+            return {"bids": order_book_bid, "asks": order_book_ask}
+        except:
+            self.log.error("Error fetching results from bter!")
+            return
+
     def fetch_from_yahoo(self, assets=None):
         return(self.yahoo.fetch_price())
