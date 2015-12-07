@@ -43,8 +43,8 @@ class DelegateTask(object):
                           config_bts["host"], config_bts["port"])
         self.bts_market = BTSMarket(self.client)
         self.bts_price = BTSPriceAfterMatch(self.bts_market)
-        ### don't use cover order, because it's feed price related,
-        ### if there is a big order, feed price will down without stop
+        # don't use cover order, because it's feed price related,
+        # if there is a big order, feed price will down without stop
         self.bts_price.set_need_cover(False)
 
     def setup_log(self):
@@ -95,14 +95,15 @@ class DelegateTask(object):
         valid_depth = self.bts_price.get_valid_depth(
             price=real_price,
             spread=self.config_price_feed["price_limit"]["spread"])
+        price_cny = real_price / self.bts_price.rate_btc["CNY"]
         self.logger.info("fetch price is %.5f CNY/BTS, volume is %.3f",
-                         real_price, volume)
+                         price_cny, volume)
         self.logger.info("efficent depth : %s" % valid_depth)
         return real_price
 
-    ###### these MPA's precision is 100, it's too small,
-    ###### have to change the price
-    ###### but we should fixed these at BTS2.0
+    # these MPA's precision is 100, it's too small,
+    # have to change the price
+    # but we should fixed these at BTS2.0
     def patch_nasdaqc(self, median_price):
         if "SHENZHEN" in median_price:
             median_price["SHENZHEN"] /= median_price["CNY"]
@@ -115,14 +116,14 @@ class DelegateTask(object):
         if "HANGSENG" in median_price:
             median_price["HANGSENG"] /= median_price["HKD"]
 
-    def get_median_price(self, bts_price_in_cny):
+    def get_median_price(self, bts_price_in_btc):
         median_price = {}
         for asset in self.price_queue:
-            if asset not in self.bts_price.rate_cny or \
-                    self.bts_price.rate_cny[asset] is None:
+            if asset not in self.bts_price.rate_btc or \
+                    self.bts_price.rate_btc[asset] is None:
                 continue
-            self.price_queue[asset].append(bts_price_in_cny
-                                           / self.bts_price.rate_cny[asset])
+            self.price_queue[asset].append(bts_price_in_btc
+                                           / self.bts_price.rate_btc[asset])
             if len(self.price_queue[asset]) > \
                     self.config_price_feed["price_limit"]["median_length"]:
                 self.price_queue[asset].pop(0)
@@ -169,7 +170,7 @@ class DelegateTask(object):
         # that the market makers then have to absorb.
         # If we can get updates flowing smoothly then we can gradually reduce
         # the spread in the market maker bots.
-        #*note: all prices in USD per BTS
+        # note: all prices in USD per BTS
         if time.time() - self.time_publish_feed > \
                 self.config_price_feed["max_update_hours"] * 60 * 60:
             return True
@@ -178,7 +179,7 @@ class DelegateTask(object):
                 median_price[asset] - self.last_publish_price[asset]) \
                 / self.last_publish_price[asset]
 
-            ### ignore if change less than 0.2%
+            # ignore if change less than 0.2%
             change_ignore = \
                 self.config_price_feed["price_limit"]["change_ignore"]
             if fabs(price_change) < change_ignore:
@@ -188,10 +189,10 @@ class DelegateTask(object):
                     median_price[asset] < current_feed_price[asset] / \
                     self.discount and self.last_publish_price[asset] > \
                     current_feed_price[asset] / self.discount:
-                #self.logger.info(
-                #    "need update: %s %s %s" % (
-                #        median_price[asset], self.last_publish_price[asset],
-                #        current_feed_price[asset] / self.discount))
+                # self.logger.info(
+                #     "need update: %s %s %s" % (
+                #         median_price[asset], self.last_publish_price[asset],
+                #         current_feed_price[asset] / self.discount))
                 return True
             # if  you haven't published a price in the past 20 minutes,
             # and the price change more than 0.5%
@@ -252,10 +253,10 @@ class DelegateTask(object):
         print("====================================================")
 
     def task_feed_price(self):
-        bts_price_in_cny = self.fetch_bts_price()
-        median_price = self.get_median_price(bts_price_in_cny)
+        bts_price_in_btc = self.fetch_bts_price()
+        median_price = self.get_median_price(bts_price_in_btc)
         current_feed_price = self.get_feed_price()
-        #if self.publish_rule_check(median_price, current_feed_price):
+        # if self.publish_rule_check(median_price, current_feed_price):
         if self.publish_rule_check2(median_price):
             self.check_median_price(median_price, current_feed_price)
             self.publish_feed_price(median_price)
