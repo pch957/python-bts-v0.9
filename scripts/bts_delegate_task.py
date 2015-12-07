@@ -82,12 +82,13 @@ class DelegateTask(object):
 
         # can add weight here
         for order_type in self.bts_price.order_types:
-            for market in self.config_price_feed["market_weight"]:
-                if market not in self.bts_price.order_book:
-                    continue
+            for market in self.bts_price.order_book:
+                if market not in self.config_price_feed["market_weight"]:
+                    _weight = 0.0
+                else:
+                    _weight = self.config_price_feed["market_weight"][market]
                 for _order in self.bts_price.order_book[market][order_type]:
-                    _order[1] *= \
-                        self.config_price_feed["market_weight"][market]
+                    _order[1] *= _weight
 
         # calculate real price
         volume, volume_sum, real_price = self.bts_price.get_real_price(
@@ -234,12 +235,12 @@ class DelegateTask(object):
         os.system("clear")
         print("================ %s ===================" %
               time.strftime("%Y%m%dT%H%M%S", time.localtime(time.time())))
-        print("   ASSET  RATE(CNY)    CURRENT_FEED   LAST_PUBLISH")
+        print("   ASSET  RATE(/BTC)    CURRENT_FEED   LAST_PUBLISH")
         print("-----------------------------------------------------")
         for asset in sorted(median_price):
             if asset not in self.last_publish_price:
                 continue
-            _rate_cny = "%.3f" % self.bts_price.rate_cny[asset]
+            _rate_btc = "%.3f" % 1/self.bts_price.rate_btc[asset]
             if current_feed_price[asset] is None:
                 _current_feed_price = None
             else:
@@ -247,7 +248,7 @@ class DelegateTask(object):
             _last_publish_price = "%.4g" % self.last_publish_price[asset]
             print(
                 '{: >8}'.format("%s" % asset), '{: >10}'.
-                format('%s' % _rate_cny), '{: >15}'.
+                format('%s' % _rate_btc), '{: >15}'.
                 format("%s" % _current_feed_price), '{: >15}'.
                 format('%s' % _last_publish_price))
         print("====================================================")
